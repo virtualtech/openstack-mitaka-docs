@@ -1,6 +1,6 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術
-Version:0.9.7-1
+Version:0.9.8-1
 
 # OpenStack構築手順書 Mitaka版
 
@@ -2002,8 +2002,8 @@ controller# less /etc/neutron/plugins/ml2/linuxbridge_agent.ini | grep -v "^\s*$
 ```
 ※ ML2プラグインのl2populationについて
 OpenStack Mitakaの公式手順書では、ML2プラグインのmechanism_driversとしてlinuxbridgeとl2populationが指定されています。
-l2populationが有効だとこれまでの動きと異なり、インスタンスが起動してもネットワークが有効化されるまで通信ができません。つまり、Neutronネットワークを $
-ただし、弊社で構築した環境においては起動時間が経過するとArpリクエストを返さなくなり、結果Neutronネットワーク内と外との接続に支障が出ることが判明した$
+l2populationが有効だとこれまでの動きと異なり、インスタンスが起動してもネットワークが有効化されるまで通信ができません。つまり、Neutronネットワークを構築してルーターのパブリック側のIPアドレス宛にPingコマンドを実行して確認できても疎通ができません。このネットワーク有効化の有無についてメッセージキューサービスが監視して制御しています。従ってOpenStack Mitakaでは、これまでのバージョン以上にメッセージキューサービス（本例や公式手順ではしばしばRabbitMQが使用されます）が確実に動作している必要があります。このような仕組みが導入されたのは、不要なパケットがネットワーク内に流れ続けないようにするためです。
+ただし、弊社で構築した環境においては起動時間が経過するとArpリクエストを返さなくなり、結果Neutronネットワーク内と外との接続に支障が出ることが判明したため、公式のインストールガイドではl2populationを利用していますがこれをオフにして対処しています。
 
 ・controllerの/etc/neutron/plugins/ml2/ml2_conf.iniの設定変更
 
