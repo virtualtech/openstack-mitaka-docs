@@ -3057,26 +3057,26 @@ controller# vi /etc/openstack-dashboard/local_settings.py
 
 ...
 
-OPENSTACK_HOST = "controller"
-OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST
+OPENSTACK_HOST = "controller"    ← 変更
+OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST   ← 変更
 ALLOWED_HOSTS = ['*', ] 
 
-SESSION_ENGINE = ‘django.contrib.sessions.backends.cache'　←追記
-CACHES = {
+SESSION_ENGINE = ‘django.contrib.sessions.backends.cache'   ←追記
+CACHES = {										←CACHESパラメーターのコメントを外す
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': 'controller:11211’,  
+        'LOCATION': 'controller:11211',	← 変更
     },
 }
 
-OPENSTACK_API_VERSIONS = {
-    "identity": 3,
-    "volume": 2,
-    "compute": 2,
+OPENSTACK_API_VERSIONS = {		←OPENSTACK_API_VERSIONSパラメーターのコメントを外す
+    "identity": 3,	← 変更
+    "volume": 2,		← 変更
+    "compute": 2,		← 変更
 }
 
-OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = ‘default'  ← コメントを外す
-OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
+OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'  ← コメントを外す
+OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"  ← 変更
 TIME_ZONE = "Asia/Tokyo"  ← 変更
 ```
 
@@ -3101,7 +3101,7 @@ controller# vi /var/www/html/index.html
 変更した変更を反映させるため、Apacheとセッションストレージサービスを再起動します。
 
 ```
-controller# service apache2 reload
+controller# service apache2 restart
 ```
 
 ### 11-3 Dashboardにアクセス
