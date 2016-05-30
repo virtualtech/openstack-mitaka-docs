@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版<br>
 Company: 日本仮想化技術<br>
-Version:0.9.9-1<br>
+Version:0.9.9-2<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：0.9.9-1 (2016/05/30作成) <br>
+バージョン：0.9.9-2 (2016/05/30作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -17,15 +17,18 @@ Version:0.9.9-1<br>
 |:---|:---|:---|
 |0.9.0|2016/05/13|Mitaka版執筆開始|
 |0.9.9-1|2016/05/30|ベータ版を公開|
+|0.9.9-2|2016/05/30| 「1-5-2 プロキシーの設定」を修正、改行の調整|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
 Issue登録か、日本仮想化技術までメールにてお願いします。
 https://github.com/virtualtech/openstack-mitaka-docs/issues
 ````
+
 <!-- BREAK -->
 
 ## 目次
+
 <!--TOC max3-->
 <!-- BREAK -->
 
@@ -171,21 +174,20 @@ Ubuntuインストール時に選択した言語がインストール後も使�
 Ubuntu Serverで日本語の言語を設定した場合、標準出力や標準エラー出力が文字化けするなど様々な問題が起きますので、言語は英語を設定されることを推奨します。
 ```
 
-
 #### 1-5-2 プロキシーの設定
 
 外部ネットワークとの接続にプロキシーの設定が必要な場合は、aptコマンドを使ってパッケージの照会やダウンロードを行うために次のような設定をする必要があります。
 
-- システムのプロキシー設定
++ システムのプロキシー設定
 
 ```
 # vi /etc/environment
 http_proxy="http://proxy.example.com:8080/"
 https_proxy="https://proxy.example.com:8080/"
-no_proxy=localhost,controller,compute,sql
+no_proxy=localhost,controller,compute
 ```
 
-- APTのプロキシー設定
++ APTのプロキシー設定
 
 ```
 # vi /etc/apt/apt.conf
@@ -357,7 +359,6 @@ Processing ubuntu-cloud.archive.canonical.com removal keyring
 gpg: /etc/apt/trustdb.gpg: trustdb created
 
 OK
-
 ```
 
 各ノードのシステムをアップデートします。Ubuntuではパッケージのインストールやアップデートの際にまず`apt-get update`を実行してリポジトリーの情報の更新が必要です。そのあと`apt-get -y dist-upgrade`でアップグレードを行います。カーネルの更新があった場合は再起動してください。
@@ -1026,7 +1027,7 @@ Password:
 | Field      | Value                            |
 +------------+----------------------------------+
 | expires    | 2016-05-17T02:08:06.019234Z      |
-| id         | gAAAAABXOm72ayy8PZc2gSZi5CdOBKZZaHlclKhcIbqotIDod79qz-Zx2yrmyndWHlncIKhdyi3V3oVhCo2j_pGPQNJgTEkId1h2SwdOF6_J7JQJbLkrnycUrodrEYy8Jqx_bURM2JdmfmlmFsJSEhJkQUEWi9j_Ttg2MiDOki9h0N2S_XUmZ8g |
+| id         | gAAAAABXOm72ayy8PZc2gSZi5CdO...  |
 | project_id | 360855029dbe44649a5dc862c5a3caf1 |
 | user_id    | 59f4de8f7a7044d1b307dd3a89091bd6 |
 +------------+----------------------------------+
@@ -1055,7 +1056,7 @@ Password:
 | Field      | Value                            |
 +------------+----------------------------------+
 | expires    | 2016-05-17T02:35:04.100816Z      |
-| id         | gAAAAABXOnVIT0AYCEj0J_uWhI86IbYnISI2P4sMt73-09ntScjk-V81_5yFhCRrKrAU8l3kUAJD_D7C6tkRQuTE9QDJRr2-1i6r9A7lAUZF88Pe0yTc9K1mTdl-_BMEryDdePBCSQNBwy498IaWWAy1uCFtq-CQ7MGYeJBRNHKNS98C9Ubd294 |
+| id         | gAAAAABXOnVIT0AYCEj0J_uWhI86I... |
 | project_id | 4e00692779864ed185356843ebeb0e2f |
 | user_id    | a5fab4bc7a0645cd85e68af50c02d2fe |
 +------------+----------------------------------+
@@ -2000,33 +2001,30 @@ firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 controller# less /etc/neutron/plugins/ml2/linuxbridge_agent.ini | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
+
+#### ※ ML2プラグインのl2populationについて
+OpenStack Mitakaの公式手順書では、ML2プラグインのmechanism_driversとしてlinuxbridgeとl2populationが指定されています。l2populationが有効だとこれまでの動きと異なり、インスタンスが起動してもネットワークが有効化されるまで通信ができません。つまりNeutronネットワークを構築してルーターのパブリック側のIPアドレス宛にPingコマンドを実行して確認できても疎通ができません。このネットワーク有効化の有無についてメッセージキューサービスが監視して制御しています。
+従ってOpenStack Mitakaでは、これまでのバージョン以上にメッセージキューサービス（本例や公式手順ではしばしばRabbitMQが使用されます）が確実に動作している必要があります。このような仕組みが導入されたのは、不要なパケットがネットワーク内に流れ続けないようにするためです。
+ただし、弊社で構築した環境においては起動時間が経過するとArpリクエストを返さなくなり、結果Neutronネットワーク内と外との接続に支障が出ることが判明したため、公式のインストールガイドではl2populationを利用していますがこれをオフにして対処しています。
+
++ controllerの/etc/neutron/plugins/ml2/ml2_conf.iniの設定変更
+
 ```
-※ ML2プラグインのl2populationについて
-OpenStack Mitakaの公式手順書では、ML2プラグインのmechanism_driversとしてlinuxbridgeとl2populationが指定されています。
-l2populationが有効だとこれまでの動きと異なり、インスタンスが起動してもネットワークが有効化されるまで通信ができません。
-つまりNeutronネットワークを構築してルーターのパブリック側のIPアドレス宛にPingコマンドを実行して確認できても疎通ができません。
-このネットワーク有効化の有無についてメッセージキューサービスが監視して制御しています。
-従ってOpenStack Mitakaでは、これまでのバージョン以上にメッセージキューサービス（本例や公式手順ではしばしばRabbitMQが使用されます）
-が確実に動作している必要があります。このような仕組みが導入されたのは、不要なパケットがネットワーク内に流れ続けないようにするためです。
-ただし、弊社で構築した環境においては起動時間が経過するとArpリクエストを返さなくなり、結果Neutronネットワーク内と外との接続に支障が出る
-ことが判明したため、公式のインストールガイドではl2populationを利用していますがこれをオフにして対処しています。
-
-・controllerの/etc/neutron/plugins/ml2/ml2_conf.iniの設定変更
-
 [ml2]
 ...
 mechanism_drivers = linuxbridge,l2population
 ↓
 mechanism_drivers = linuxbridge
+```
 
-・controller & computeの/etc/neutron/plugins/ml2/linuxbridge_agent.iniの設定変更
++ controller & computeの/etc/neutron/plugins/ml2/linuxbridge_agent.iniの設定変更
 
+```
 [vxlan]
 ...
 l2_population = true
 ↓
 l2_population = false
-
 ```
 
 + Layer-3エージェントの設定
@@ -3198,3 +3196,7 @@ Ubuntu ServerベースでOpenStack環境を構築した場合、OpenStack Dashbo
 ```
 $ sudo apt-get remove --auto-remove openstack-dashboard-ubuntu-theme
 ```
+
+# Part.2 OpenStack 監視編 (近日公開予定)
+
+近日公開予定
