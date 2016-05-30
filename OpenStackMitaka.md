@@ -643,6 +643,7 @@ controller## service memcached restart
 ### 3-1 データベースを作成
 
 MariaDBにKeystoneで使用するデータベースを作成しアクセス権を付与します。
+
 ```
 controller# mysql -u root -p << EOF
 CREATE DATABASE keystone;
@@ -1676,7 +1677,7 @@ compute# less /etc/nova/nova.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
 まず次のコマンドを実行し、コンピュートノードでLinux KVMが動作可能であることを確認します。コマンド結果が1以上の場合は、CPU仮想化支援機能がサポートされています。
-もしこのコマンド結果が0の場合は想化支援機能がサポートされていないので、libvirtでKVMの代わりにQEMUを使用します。後述の/etc/nova/nova-compute.confの設定でvirt_type = qemu を設定します。
+もしこのコマンド結果が0の場合は仮想化支援機能がサポートされていないか、設定が有効化されていないので、libvirtでKVMの代わりにQEMUを使用します。後述の/etc/nova/nova-compute.confの設定でvirt_type = qemu を設定します。
 
 ```
 compute# cat /proc/cpuinfo |egrep 'vmx|svm'|wc -l
@@ -2055,8 +2056,6 @@ enable_isolated_metadata = True
 + dnsmasqの設定
 
 一般的にデフォルトのイーサネットのMTUは1500に設定されています。通常のEthernet フレームにVXLANヘッダが加算されるため、VXLANを使う場合は少なくとも50バイト多い、1550バイト以上のMTUが設定されていないと通信が不安定になったり、通信が不可能になる場合があります。これらはジャンボフレームを設定することで約9000バイトまでのMTUをサポートできるようになり対応可能ですが、ジャンボフレーム非対応のネットワーク機器を使う場合や、ネットワーク機器の設定を変更できない場合はVXLANの50バイトのオーバーヘッドを考慮して1450バイト以内のMTUに設定する必要があります。これらの制約事項はOpenStack環境でも同様で、インスタンスを起動する際にMTU 1450を設定することで、この問題を回避可能です。この設定はインスタンス起動毎にUserDataを使って設定することも可能ですが、次のように設定しておくと仮想DHCPサーバーでMTUの自動設定を行うことができるので便利です。
-
-interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
 
 + DHCPエージェントにdnsmasqの設定を追記
 
