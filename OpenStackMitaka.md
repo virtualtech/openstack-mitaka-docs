@@ -3092,8 +3092,6 @@ controller# vi /var/www/html/index.html
 controller# service apache2 restart
 ```
 
-<!-- BREAK -->
-
 ### 11-3 Dashboardにアクセス
 
 コントローラーノードとネットワーク的に接続されているマシンからブラウザで以下URLに接続してOpenStackのログイン画面が表示されるか確認します。
