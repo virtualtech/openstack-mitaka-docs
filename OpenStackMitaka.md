@@ -1,11 +1,11 @@
-Title: OpenStack構築手順書 Mitaka版<br>
+Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
 Version:0.9.9-2<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：0.9.9-2 (2016/05/30作成) <br>
+バージョン：0.9.9-2 (2016/05/31作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -80,7 +80,6 @@ Ubuntu Serverでは新しいハードウェアのサポートを積極的に行�
 | DHCP Agent
 | Metadata Agent
 | Cinder
-               
 
 <!-- BREAK -->
 
@@ -93,8 +92,6 @@ IPアドレスは以下の構成で構築されている前提で解説します
 |ネットワーク|10.0.0.0/24|
 |ゲートウェイ|10.0.0.1|
 |ネームサーバー|10.0.0.1|
-
-<!-- BREAK -->
 
 ### 1-4 各ノードのネットワーク設定
 
@@ -266,7 +263,6 @@ OpenStackパッケージのインストール前に各々のノードで以下�
 
 ```
 controller# vi /etc/network/interfaces
-
 auto eth0
 iface eth0 inet static
       address 10.0.0.101
@@ -275,13 +271,10 @@ iface eth0 inet static
       dns-nameservers 10.0.0.1
 ```
 
-<!-- BREAK -->
-
 #### 2-1-2 コンピュートノードのIPアドレスの設定
 
 ```
 compute# vi /etc/network/interfaces
-
 auto eth0
 iface eth0 inet static
       address 10.0.0.102
@@ -289,6 +282,7 @@ iface eth0 inet static
       gateway 10.0.0.1
       dns-nameservers 10.0.0.1
 ```
+<!-- BREAK -->
 
 #### 2-1-3 ネットワークの設定を反映
 
@@ -297,8 +291,6 @@ iface eth0 inet static
 ```
 # shutdown -r now
 ```
-
-<!-- BREAK -->
 
 ### 2-2 ホスト名と静的な名前解決の設定
 
@@ -511,8 +503,6 @@ controller# service mysql restart
 compute# apt-get install -y mariadb-client-5.5 mariadb-client-core-5.5
 ````
 
-<!-- BREAK -->
-
 ### 2-7 RabbitMQのインストール
 
 OpenStackは、オペレーションやステータス情報を各サービス間で連携するためにメッセージブローカーを使用しています。OpenStackではRabbitMQ、Qpid、ZeroMQなど複数のメッセージブローカーサービスに対応しています。
@@ -526,8 +516,6 @@ OpenStackは、オペレーションやステータス情報を各サービス�
 controller# apt-get install rabbitmq-server
 ```
 
-<!-- BREAK -->
-
 #### 2-7-2 openstackユーザーの作成とパーミッションの設定
 
 RabbitMQにアクセスするためのユーザーとしてopenstackユーザーを作成し、必要なパーミッションを設定します。
@@ -537,6 +525,8 @@ RabbitMQにアクセスするためのユーザーとしてopenstackユーザー
 controller# rabbitmqctl add_user openstack password
 controller# rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 ```
+
+<!-- BREAK -->
 
 #### 2-7-3 待ち受けIPアドレス・ポートとセキュリティ設定の変更
 
@@ -550,8 +540,6 @@ RABBITMQ_NODE_IP_ADDRESS=10.0.0.101    ← controllerのIPアドレス
 RABBITMQ_NODE_PORT=5672
 HOSTNAME=controller
 ```
-
-<!-- BREAK -->
 
 #### 2-7-4 RabbitMQサービス再起動と確認
 
@@ -575,7 +563,6 @@ Server startup complete; 0 plugins started.
 ※新たなエラーが表示されなければ問題ありません。
 
 <!-- BREAK -->
-
 
 ### 2-8 環境変数設定ファイルの作成
 
@@ -612,6 +599,8 @@ export OS_IDENTITY_API_VERSION=3
 export OS_IMAGE_API_VERSION=2
 export PS1='\u@\h \W(demo)\$ '
 ```
+
+<!-- BREAK -->
 
 ### 2-9 memcachedのインストールと設定
 
@@ -986,8 +975,6 @@ controller# openstack role create user
 controller# openstack role add --project demo --user demo user
 ```
 
-<!-- BREAK -->
-
 ### 3-12 Keystoneの動作確認
 
 他のサービスをインストールする前に Keystone が正しく構築、設定されたか動作を検証します。
@@ -1043,8 +1030,6 @@ Password:
 10.0.0.101 - - [16/May/2016:15:54:49 +0900] "GET /v3 HTTP/1.1" 200 556 "-" "python-openstackclient keystoneauth1/2.4.0 python-requests/2.9.1 CPython/2.7.6"
 10.0.0.101 - - [16/May/2016:15:54:49 +0900] "POST /v3/auth/tokens HTTP/1.1" 201 1608 "-" "python-openstackclient keystoneauth1/2.4.0 python-requests/2.9.1 CPython/2.7.6"
 ```
-
-<!-- BREAK -->
 
 + demoユーザーとして管理トークンを要求します。
 
