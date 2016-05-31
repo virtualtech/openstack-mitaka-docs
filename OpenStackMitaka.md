@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:0.9.9-2<br>
+Version:0.9.9-3<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：0.9.9-2 (2016/05/31作成) <br>
+バージョン：0.9.9-3 (2016/05/31作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -18,6 +18,7 @@ Version:0.9.9-2<br>
 |0.9.0|2016/05/13|Mitaka版執筆開始|
 |0.9.9-1|2016/05/30|ベータ版を公開|
 |0.9.9-2|2016/05/30| 「1-5-2 プロキシーの設定」を修正、改行の調整|
+|0.9.9-3|2016/05/31| 改行の調整|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -1155,6 +1156,7 @@ controller# openstack endpoint create --region RegionOne \
 ### 4-4 Glanceのインストール
 
 apt-getコマンドでglance パッケージをインストールします。
+
 ```
 controller# apt-get install glance
 ```
@@ -1336,7 +1338,6 @@ controller# openstack image list
 ```
 
 <!-- BREAK -->
-
 
 ## 5. Novaのインストールと設定（コントローラーノード）
 
@@ -1660,6 +1661,7 @@ lock_path = /var/lib/nova/tmp
 ```
 compute# less /etc/nova/nova.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
+<!-- BREAK -->
 
 まず次のコマンドを実行し、コンピュートノードでLinux KVMが動作可能であることを確認します。コマンド結果が1以上の場合は、CPU仮想化支援機能がサポートされています。
 もしこのコマンド結果が0の場合は仮想化支援機能がサポートされていないか、設定が有効化されていないので、libvirtでKVMの代わりにQEMUを使用します。後述の/etc/nova/nova-compute.confの設定でvirt_type = qemu を設定します。
@@ -1678,8 +1680,6 @@ compute# vi /etc/nova/nova-compute.conf
 virt_type = kvm
 ```
 
-<!-- BREAK -->
-
 ### 6-3 Novaコンピュートサービスの再起動
 
 設定を反映させるため、Nova-Computeサービスを再起動します。
@@ -1687,6 +1687,8 @@ virt_type = kvm
 ```
 compute# service nova-compute restart
 ```
+
+<!-- BREAK -->
 
 ### 6-4 コントローラーノードとの疎通確認
 
@@ -1756,7 +1758,6 @@ MariaDBにneutronユーザーでログインし、データベースの閲覧が
 controller# mysql -u neutron -p
 Enter password: ←MariaDBのneutronパスワードpasswordを入力
 ...
-
 Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 MariaDB [(none)]> show databases;
@@ -1767,7 +1768,6 @@ MariaDB [(none)]> show databases;
 | neutron            |
 +--------------------+
 2 rows in set (0.00 sec)
-
 ```
 
 ※ユーザーneutronでログイン可能でデータベースが閲覧可能なら問題ありません。
@@ -1836,8 +1836,6 @@ controller# openstack endpoint create --region RegionOne \
   network admin http://controller:9696
 ```
 
-<!-- BREAK -->
-
 ### 7-4 パッケージのインストール
 
 本書ではネットワークの構成は公式マニュアルの「[Networking Option 2: Self-service networks](http://docs.openstack.org/mitaka/install-guide-ubuntu/neutron-controller-install-option2.html)」の方法で構築する例を示します。
@@ -1847,6 +1845,8 @@ controller# apt-get install neutron-server neutron-plugin-ml2 \
  neutron-linuxbridge-agent neutron-l3-agent neutron-dhcp-agent \
  neutron-metadata-agent
 ```
+
+<!-- BREAK -->
 
 ### 7-5 Neutronコンポーネントの設定
 
@@ -1882,14 +1882,6 @@ project_name = service
 username = neutron
 password = password  ←neutronユーザーのパスワード
 
-（次ページに続きます...）
-```
-
-<!-- BREAK -->
-
-```
-（前ページ/etc/neutron/neutron.confの続き）
-
 [nova]（以下末尾に追記）
 ...
 auth_url = http://controller:35357
@@ -1900,6 +1892,14 @@ region_name = RegionOne
 project_name = service
 username = nova
 password = password  ←novaユーザーのパスワード
+
+（次ページに続きます...）
+```
+
+<!-- BREAK -->
+
+```
+（前ページ/etc/neutron/neutron.confの続き）
 
 [oslo_messaging_rabbit]（以下追記）
 ...
@@ -1915,8 +1915,6 @@ rabbit_password = password
 ```
 controller# less /etc/neutron/neutron.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
-
-<!-- BREAK -->
 
 + ML2プラグインの設定
 
@@ -1986,11 +1984,11 @@ firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 ```
 controller# less /etc/neutron/plugins/ml2/linuxbridge_agent.ini | grep -v "^\s*$" | grep -v "^\s*#"
 ```
-
+<!-- BREAK -->
 
 #### ※ ML2プラグインのl2populationについて
-OpenStack Mitakaの公式手順書では、ML2プラグインのmechanism_driversとしてlinuxbridgeとl2populationが指定されています。l2populationが有効だとこれまでの動きと異なり、インスタンスが起動してもネットワークが有効化されるまで通信ができません。つまりNeutronネットワークを構築してルーターのパブリック側のIPアドレス宛にPingコマンドを実行して確認できても疎通ができません。このネットワーク有効化の有無についてメッセージキューサービスが監視して制御しています。
-従ってOpenStack Mitakaでは、これまでのバージョン以上にメッセージキューサービス（本例や公式手順ではしばしばRabbitMQが使用されます）が確実に動作している必要があります。このような仕組みが導入されたのは、不要なパケットがネットワーク内に流れ続けないようにするためです。
+OpenStack Mitakaの公式手順書では、ML2プラグインのmechanism_driversとしてlinuxbridgeとl2populationが指定されています。l2populationが有効だとこれまでの動きと異なり、インスタンスが起動してもネットワークが有効化されるまで通信ができません。つまりNeutronネットワークを構築してルーターのパブリック側のIPアドレス宛にPingコマンドを実行して確認できても疎通ができません。このネットワーク有効化の有無についてメッセージキューサービスが監視して制御しています。 <br />
+従ってOpenStack Mitakaでは、これまでのバージョン以上にメッセージキューサービス（本例や公式手順ではしばしばRabbitMQが使用されます）が確実に動作している必要があります。このような仕組みが導入されたのは、不要なパケットがネットワーク内に流れ続けないようにするためです。<br />
 ただし、弊社で構築した環境においては起動時間が経過するとArpリクエストを返さなくなり、結果Neutronネットワーク内と外との接続に支障が出ることが判明したため、公式のインストールガイドではl2populationを利用していますがこれをオフにして対処しています。
 
 + controllerの/etc/neutron/plugins/ml2/ml2_conf.iniの設定変更
@@ -2012,6 +2010,7 @@ l2_population = true
 ↓
 l2_population = false
 ```
+<!-- BREAK -->
 
 + Layer-3エージェントの設定
 
@@ -2040,7 +2039,10 @@ enable_isolated_metadata = True
 
 + dnsmasqの設定
 
-一般的にデフォルトのイーサネットのMTUは1500に設定されています。通常のEthernet フレームにVXLANヘッダが加算されるため、VXLANを使う場合は少なくとも50バイト多い、1550バイト以上のMTUが設定されていないと通信が不安定になったり、通信が不可能になる場合があります。これらはジャンボフレームを設定することで約9000バイトまでのMTUをサポートできるようになり対応可能ですが、ジャンボフレーム非対応のネットワーク機器を使う場合や、ネットワーク機器の設定を変更できない場合はVXLANの50バイトのオーバーヘッドを考慮して1450バイト以内のMTUに設定する必要があります。これらの制約事項はOpenStack環境でも同様で、インスタンスを起動する際にMTU 1450を設定することで、この問題を回避可能です。この設定はインスタンス起動毎にUserDataを使って設定することも可能ですが、次のように設定しておくと仮想DHCPサーバーでMTUの自動設定を行うことができるので便利です。
+一般的にデフォルトのイーサネットのMTUは1500に設定されています。通常のEthernet フレームにVXLANヘッダが加算されるため、VXLANを使う場合は少なくとも50バイト多い、1550バイト以上のMTUが設定されていないと通信が不安定になったり、通信が不可能になる場合があります。<br />
+これらはジャンボフレームを設定することで約9000バイトまでのMTUをサポートできるようになり対応可能ですが、ジャンボフレーム非対応のネットワーク機器を使う場合や、ネットワーク機器の設定を変更できない場合はVXLANの50バイトのオーバーヘッドを考慮して1450バイト以内のMTUに設定する必要があります。<br />
+これらの制約事項はOpenStack環境でも同様で、インスタンスを起動する際にMTU 1450を設定することで、この問題を回避可能です。<br />
+この設定はインスタンス起動毎にUserDataを使って設定することも可能ですが、次のように設定しておくと仮想DHCPサーバーでMTUの自動設定を行うことができるので便利です。
 
 + DHCPエージェントにdnsmasqの設定を追記
 
@@ -2051,6 +2053,8 @@ controller# vi /etc/neutron/dhcp_agent.ini
 ...
 dnsmasq_config_file = /etc/neutron/dnsmasq-neutron.conf  ←追記
 ```
+
+<!-- BREAK -->
 
 + DHCPオプションの26番(MTU)を定義
 
@@ -2336,7 +2340,6 @@ OpenStack Neutron環境ができたので、OpenStack内で利用するネット
 
 インスタンスにはインスタンス用ネットワークの範囲のIPアドレスがDHCPサーバーからDHCP Agentを介して割り当てられます。このインスタンスにパブリックネットワークの範囲からFloating IPアドレスを割り当てることで、NAT接続でインスタンスが外部ネットワークとやり取りができるようになります。
 
-
 ### 9-1 パブリックネットワークの設定
 
 #### 9-1-1 admin環境変数ファイルの読み込み
@@ -2346,6 +2349,7 @@ OpenStack Neutron環境ができたので、OpenStack内で利用するネット
 ```
 controller# source admin-openrc.sh
 ```
+<!-- BREAK -->
 
 #### 9-1-2 パブリックネットワークの作成
 
@@ -2354,7 +2358,6 @@ ext-netと言う名前でパブリックネットワークを作成します。`
 ```
 controller(admin)# neutron net-create ext-net --router:external \
  --provider:physical_network provider --provider:network_type flat
-
 Created a new network:
 +---------------------------+--------------------------------------+
 | Field                     | Value                                |
@@ -2460,6 +2463,7 @@ Created a new network:
 +-------------------------+--------------------------------------+
 
 ```
+<!-- BREAK -->
 
 #### 9-2-3 インスタンス用ネットワークのサブネットを作成
 
@@ -2575,6 +2579,8 @@ controller(admin)# neutron router-port-list demo-router -c fixed_ips --max-width
 
 ※応答が返ってくれば問題ありません。
 
+<!-- BREAK -->
+
 コントローラーノードで次のようにコマンドを実行すると、従来のOpen vSwitchのようにlinuxbridgeの中をのぞくことができます。仮想ルーターと仮想DHCPサーバーの状態を確認できます。接続がうまくいかない場合におためしください。
 
 ```
@@ -2607,6 +2613,7 @@ controller# ping 8.8.8.8 -I qg-c39b9d87-8e
 (Public側から外にアクセスできることを確認)
  
 ```
+<!-- BREAK -->
 
 ### 9-5 インスタンスの起動を確認
 
@@ -2726,7 +2733,7 @@ MariaDB [(none)]> show databases;
 
 ### 10-3 Cinderサービスなどの作成
 
-+ admin環境変数を読み込み
++ admin環境変数の読み込み
 
 ```
 controller# source admin-openrc.sh
@@ -2746,7 +2753,6 @@ Repeat User Password: password
 | id        | 4b798308a76041d1a0dc86464ac1208a |
 | name      | cinder                           |
 +-----------+----------------------------------+
-
 ```
 
 + adminロールをcinderユーザーに追加
@@ -2783,7 +2789,6 @@ controller# openstack service create --name cinderv2 \
 | name        | cinderv2                         |
 | type        | volumev2                         |
 +-------------+----------------------------------+
-
 ```
 <!-- BREAK -->
 
@@ -2807,8 +2812,6 @@ controller# openstack endpoint create --region RegionOne \
    volumev2 admin http://controller:8776/v2/%\(tenant_id\)s
 ```
 
-<!-- BREAK -->
-
 ### 10-4 パッケージのインストール
 
 本書ではBlock StorageコントローラーとBlock Storageボリュームコンポーネントを一台のマシンで構築するため、両方の役割をインストールします。
@@ -2816,6 +2819,8 @@ controller# openstack endpoint create --region RegionOne \
 ```
 controller# apt-get install -y lvm2 cinder-api cinder-scheduler cinder-volume python-mysqldb python-cinderclient 
 ```
+
+<!-- BREAK -->
 
 ### 10-5 Cinderの設定を変更
 
@@ -2862,15 +2867,13 @@ volume_group = cinder-volumes
 iscsi_protocol = iscsi
 iscsi_helper = tgtadm
 ```
+<!-- BREAK -->
 
 次のコマンドで正しく設定を行ったか確認します。
 
 ```
 controller# less /etc/cinder/cinder.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
-
-<!-- BREAK -->
-
 
 ### 10-6 データベースに展開
 
@@ -2950,6 +2953,8 @@ devices {
 filter = [ "a/sdb/", "r/.*/"]
 ```
 
+<!-- BREAK -->
+
 #### 10-11-3 Cinder-Volumeサービスの再起動
 
 Cinderストレージの設定を反映させるために、Cinder-Volumeのサービスを再起動します。
@@ -2966,8 +2971,6 @@ adminのみ実行可能なコマンドを実行するために、admin環境変�
 controller# source admin-openrc.sh
 ```
 
-<!-- BREAK -->
-
 #### 10-11-5 Cinderサービスの確認
 
 以下コマンドでCinderサービスの一覧を表示し、正常に動作していることを確認します。
@@ -2975,14 +2978,15 @@ controller# source admin-openrc.sh
 ```
 controller# cinder service-list
 
-+------------------+----------------+------+---------+-------+----------------------------+-----------------+
-|      Binary      |      Host      | Zone |  Status | State |         Updated_at         | Disabled Reason |
-+------------------+----------------+------+---------+-------+----------------------------+-----------------+
-| cinder-scheduler |   controller   | nova | enabled |   up  | 2016-05-19T02:39:09.000000 |        -        |
-|  cinder-volume   | controller@lvm | nova | enabled |   up  | 2016-05-19T02:39:11.000000 |        -        |
-+------------------+----------------+------+---------+-------+----------------------------+-----------------+
++------------------+----------------+------+---------+-------+------------------+
+|      Binary      |      Host      | Zone |  Status | State |    Updated_at    |
++------------------+----------------+------+---------+--------------------------+
+| cinder-scheduler |   controller   | nova | enabled |   up  | 2016-05-19T02:39 |
+|  cinder-volume   | controller@lvm | nova | enabled |   up  | 2016-05-19T02:39 |
++------------------+----------------+------+---------+-------+------------------+
 
 ```
+<!-- BREAK -->
 
 #### 10-11-6 Cinderボリュームの作成
 
@@ -3064,6 +3068,7 @@ OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'  ← コメントを外す
 OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"  ← 変更
 TIME_ZONE = "Asia/Tokyo"  ← 変更
 ```
+<!-- BREAK -->
 
 次のコマンドで正しく設定を行ったか確認します。
 
@@ -3081,13 +3086,13 @@ controller# vi /var/www/html/index.html
     <meta http-equiv="refresh" content="3; url=/horizon" />    ← 追記
 ```
 
-<!-- BREAK -->
-
 変更した変更を反映させるため、Apacheとセッションストレージサービスを再起動します。
 
 ```
 controller# service apache2 restart
 ```
+
+<!-- BREAK -->
 
 ### 11-3 Dashboardにアクセス
 
@@ -3180,6 +3185,7 @@ Ubuntu ServerベースでOpenStack環境を構築した場合、OpenStack Dashbo
 ```
 $ sudo apt-get remove --auto-remove openstack-dashboard-ubuntu-theme
 ```
+<!-- BREAK -->
 
 # Part.2 OpenStack 監視編 (近日公開予定)
 
