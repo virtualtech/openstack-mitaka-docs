@@ -844,7 +844,7 @@ controller# openstack endpoint create --region RegionOne \
 controller# openstack endpoint create --region RegionOne \
   identity internal http://controller:5000/v3
 
-controller#openstack endpoint create --region RegionOne \
+controller# openstack endpoint create --region RegionOne \
   identity admin http://controller:35357/v3
 ```
 
