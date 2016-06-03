@@ -622,7 +622,7 @@ controller# vi /etc/memcached.conf
 memcachedサービスを再起動します。
 
 ```
-controller## service memcached restart
+controller# service memcached restart
 ```
 <!-- BREAK -->
 
