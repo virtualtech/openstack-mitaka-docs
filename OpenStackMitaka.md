@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:0.9.9-3<br>
+Version:0.9.9-4<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：0.9.9-3 (2016/05/31作成) <br>
+バージョン：0.9.9-4 (2016/06/03作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -19,6 +19,7 @@ Version:0.9.9-3<br>
 |0.9.9-1|2016/05/30|ベータ版を公開|
 |0.9.9-2|2016/05/30| 「1-5-2 プロキシーの設定」を修正、改行を調整|
 |0.9.9-3|2016/05/31| 改行を調整|
+|0.9.9-4|2016/06/03| 誤記およびLiberty版Glanceで起きていた問題に対する対応で不要な記述の削除|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -1263,13 +1264,6 @@ controller# service glance-registry restart && service glance-api restart
 ```
 controller# tailf /var/log/glance/glance-api.log
 controller# tailf /var/log/glance/glance-registry.log
-```
-
-Glanceのインストール直後はGlanceのログに「glance.store.swift.Storeを読みこむことができなかった」といったエラーが出ることがありますが、本書の例に従った場合はGlanceのバックエンドとしてSwiftストレージは使わないため、無視して構いません。正しく設定が行われるとエラー出力はされなくなります。
-
-```
-ERROR stevedore.extension [-] Could not load 'glance.store.swift.Store': No module named swiftclient
-ERROR stevedore.extension [-] No module named swiftclient
 ```
 
 インストール直後は作られていない場合が多いですが、コマンドを実行してglance.sqliteを削除します。
