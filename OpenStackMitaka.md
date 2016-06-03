@@ -3044,7 +3044,7 @@ OPENSTACK_HOST = "controller"    ← 変更
 OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST   ← 変更
 ALLOWED_HOSTS = ['*', ] 
 
-SESSION_ENGINE = ‘django.contrib.sessions.backends.cache'   ←追記
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'   ←追記
 CACHES = {										←CACHESパラメーターのコメントを外す
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
