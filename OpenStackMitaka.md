@@ -5,7 +5,7 @@ Version:1.0.0-b<br>
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0-b (2016/06/08作成) <br>
+バージョン：1.0.0-b2 (2016/06/09作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -21,6 +21,7 @@ Version:1.0.0-b<br>
 |0.9.9-3|2016/05/31| 改行を調整|
 |0.9.9-4|2016/06/03| 誤記およびLiberty版Glanceで起きていた問題に対する対応で不要な記述の削除|
 |1.0.0-b|2016/06/08| Part.2 監視環境 構築編(ベータ版)を公開|
+|1.0.0-b|2016/06/09| 誤記の修正|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -3203,15 +3204,15 @@ ZabbixはZabbix SIA社が提供するパッケージを使う方法とCanonical 
 
 ```
 zabbix# wget http://repo.zabbix.com/zabbix/3.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.0-1+trusty_all.deb
-zabbix:# dpkg -i zabbix-release_3.0-1+trusty_all.deb
+zabbix# dpkg -i zabbix-release_3.0-1+trusty_all.deb
 ```
 
 次に、Zabbixの稼働に必要となるパッケージ群をインストールします。
 
 ```
+zabbix# apt-get update
 zabbix# apt-get install php5-mysql zabbix-agent zabbix-server-mysql \
  zabbix-java-gateway zabbix-frontend-php
-zabbix# apt-get update
 ```
 
 ### 12-2 Zabbix用データベースの作成
@@ -3226,7 +3227,7 @@ CREATE DATABASE zabbix;
 GRANT ALL PRIVILEGES ON zabbix.* TO 'zabbix'@'localhost' \
   IDENTIFIED BY 'zabbix';
 EOF
-Enter password: ← MySQLのrootパスワードを入力(16-1で設定したもの)
+Enter password: ← MySQLのrootパスワードを入力(12-1で設定したもの)
 ```
 
 次のコマンドを実行し、Zabbix用データベースにテーブル等のデータベースオブジェクトを作成します。
@@ -3285,7 +3286,6 @@ mysql> describe acknowledges;
 zabbix# vi /etc/zabbix/zabbix_server.conf
 ...
 DBPassword=zabbix
-php_value date.timezone Asia/Tokyo
 ```
 
 以上の操作を行ったのち、サービスzabbix-serverを起動します。
@@ -3300,7 +3300,7 @@ zabbix# service zabbix-server restart
 
 PHPの設定をZabbixが動作するように修正するため、 /etc/apache2/conf-enabled/zabbix.conf を編集します。
  
- ```
+```
  zabbix# vi  /etc/apache2/conf-enabled/zabbix.conf
  
 php_value max_execution_time 300
@@ -3310,7 +3310,8 @@ php_value upload_max_filesize 2M
 php_value max_input_time 300
 php_value always_populate_raw_post_data -1
 # php_value date.timezone Europe/Riga
- ```
+php_value date.timezone Asia/Tokyo
+```
 
 これまでの設定変更を反映させるため、Apacheを再起動します。
 
@@ -3487,24 +3488,18 @@ hatohol# systemctl start httpd
 
 ### 13-3 セキュリティ設定の変更
 
-CentOSインストール後の初期状態では、SElinux, Firewalld, iptablesといったセキュリティ機構により他のコンピュータからのアクセスに制限が加えられます。Hatoholを使用するにあたり、これらを適切に解除する必要があります。
+CentOSインストール後の初期状態では、SElinux, Firewalld, iptablesといったセキュリティ機構により他のコンピュータからのアクセスに制限が加えられます。Hatoholは現時点でSELinuxによる強制アクセス制御機能が有効化されていると動作しないため、これを解除する必要があります。
 
 　1. SELinuxの設定  
+
+　現在のSELinuxの実行モードを確認するにはgetenforceモードを実行します。
 
 ```
 hatohol# getenforce
 Enforcing
 ```
 
-Enforcingの場合、次のコマンドでSElinuxポリシールールの強制適用を解除できます。
-
-```
-hatohol# setenforce 0
-hatohol# getenforce
-Permissive
-```
-
-恒久的にSELinuxポリシールールの適用を無効化するには、/etc/selinux/configを編集します。
+SELinuxポリシールールの適用を無効化するには、/etc/selinux/configを編集します。
 
  * 編集前
 
@@ -3515,20 +3510,9 @@ Permissive
  * 編集後
 
  ```
- SELINUX=permissive
- ```
- 
- 完全にSELinuxを無効化するには、次のように設定します。
-
- ```
  SELINUX=disabled
  ```
- 
- 
- ```
- 筆者注:
- SELinuxはできる限り無効化すべきではありません。
- ```
+  
 
 　2. パケットフィルタリングの設定
 フィルタリングの設定変更は、次のコマンドで恒久的に変更可能です。5672番ポートについては後述のRabbitMQサービスで使用します。
@@ -3540,15 +3524,15 @@ hatohol# firewall-cmd --add-port=5672/tcp --zone=public --permanent
 hatohol# firewall-cmd --add-port=5672/tcp --zone=public
 ```
 
-SELinuxでNISへのアクセスを恒久的に許可するため、以下のコマンドを実行し有効化します。
+以上の設定が終わりましたら、一旦Hatoholを実行するサーバーを再起動します。
 
 ```
-# setsebool -P nis_enabled 1
+hatohol# shutdown -r now
 ```
 
 <!-- BREAK -->
 
-### 13-4 Hatohol Arm Plugin Interface 2 (HAP2)の設定
+### 13-4 Hatohol Arm Plugin Interface 2 (HAPI2)の設定
 
 　1. RabbitMQのインストール
 　
@@ -3570,7 +3554,7 @@ hatohol# systemctl enable rabbitmq-server
 hatohol# systemctl start rabbitmq-server
 ```
 
-### 13-4-1 RabbitMQ の各種設定
+### 13-4-1 RabbitMQの各種設定
 
 RabbitMQにアクセスするためのユーザーとしてhatoholユーザーを作成し、必要なパーミッションを設定します。以下はRabbitMQのパスワードをhatoholにする例です。
 
@@ -3580,14 +3564,15 @@ hatohol# rabbitmqctl add_user hatohol hatohol
 hatohol# rabbitmqctl set_permissions -p hatohol hatohol ".*" ".*" ".*"
 ```
 
-### 13-4-2 HAP2のPythonモジュールプラグインのインストール
+### 13-4-2 HAPI2のPythonモジュールプラグインのインストール
 
 ```
 hatohol# yum install python-pip python-pika
 hatohol# pip install python-mk-livestatus
 ```
 
-### 13-4-3 HAP2の追加
+### 13-4-3 HAPI2の追加
+
 以下のコマンドを実行して、HatoholにHAP2を追加します。
 
 ```
@@ -3604,7 +3589,7 @@ hatohol# yum --enablerepo=hatohol install hatohol-hap2-zabbix
 hatohol# systemctl restart hatohol
 ```
 
-### 13-5 Hatoholによる情報の閲覧
+### 13-5 Hatoholによる監視情報の閲覧
 
 Hatohol Webが動作しているホストのトップディレクトリーをWebブラウザで表示してください。10.0.0.10で動作している場合は、次のURLとなります。admin/hatohol（初期パスワード）でログインできます。
 
@@ -3645,7 +3630,7 @@ Hatoholをインストールできたら、Zabbixサーバーの情報を追加�
 
 ### 13-7 HatoholでZabbixサーバーの監視
 
-インストール直後のZabbixサーバーはモニタリング設定が無効化されています。これを有効化するとZabbixサーバー自身の監視データを取得する事ができるようになり、Hatoholで閲覧できるようになります。
+インストール直後のZabbixサーバーはモニタリング設定が無効化されています。これを有効化するとZabbixサーバー自身の監視データを取得する事ができるようになり、HatoholでZabbixサーバーの状態を閲覧できるようになります。
 
 Zabbixサーバーのモニタリング設定を変更するには、次の手順で行います。
 
@@ -3663,7 +3648,7 @@ ZabbixとHatoholの連携ができたので、あとは対象のサーバーにZ
 
 #### 13-8-1 Zabbix Agentのインストール
 
-ZabbixでOpenStackのcontrollerノード、networkノード、computeノードを監視するためにZabbix Agentをインストールします。Ubuntuには標準でZabbix Agentパッケージが用意されているので、apt-getコマンドなどを使ってインストールします。
+ZabbixでOpenStackの各ノードを監視するためにZabbix Agentをインストールします。Ubuntuには標準でZabbix Agentパッケージが用意されているので、apt-getコマンドなどを使ってインストールします。
 
 ```
 # apt-get update && apt-get install -y zabbix-agent
@@ -3673,7 +3658,7 @@ ZabbixでOpenStackのcontrollerノード、networkノード、computeノード�
 
 #### 13-8-2 Zabbix Agentの設定
 
-Zabbix Agentをインストールしたら次にどのZabbixサーバーと通信するのか設定を行う必要があります。最低限必要な設定は次の3つです。次のように設定します。
+Zabbix Agentをインストールしたら次にどのZabbixサーバーと通信するのか設定を行う必要があります。最低限必要な設定は次の4つです。次のように設定します。
 
 (controllerノードの設定記述例)
 
@@ -3741,9 +3726,9 @@ Zabbix Agentのセットアップが終わったら、次にZabbix Agentをセ�
 
 ホストの追加やディスカバリ自動登録については次のドキュメントをご覧ください。
 
+- <http://www.zabbix.com/jp/auto_discovery.php>
 - <https://www.zabbix.com/documentation/2.2/jp/manual/quickstart/host>
 - <https://www.zabbix.com/documentation/2.2/jp/manual/discovery/auto_registration>
-- <http://www.zabbix.com/jp/auto_discovery.php>
 - <https://www.zabbix.com/documentation/2.2/jp/manual/discovery/network_discovery/rule>
 
 <!-- BREAK -->
