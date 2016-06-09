@@ -1,6 +1,6 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:1.0.0-b3<br>
+Version:1.0.0-b4<br>
 
 # OpenStack構築手順書 Mitaka版
 
