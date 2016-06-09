@@ -5,7 +5,7 @@ Version:1.0.0-b3<br>
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0-b3 (2016/06/09作成) <br>
+バージョン：1.0.0-b4 (2016/06/09作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -23,6 +23,7 @@ Version:1.0.0-b3<br>
 |1.0.0-b|2016/06/08| Part.2 監視環境 構築編(ベータ版)を公開|
 |1.0.0-b2|2016/06/09| 誤記の修正|
 |1.0.0-b3|2016/06/09| ZabbixのUIを日本語化できなかった場合のTipsを追加|
+|1.0.0-b4|2016/06/09| Hatoholの画像差し替え|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -3375,7 +3376,7 @@ zabbix# service apache2 restart
 HatoholはCentOS6.5以降、Ubuntu Server 14.04、16.04などで動作します。
 本例ではHatoholをCentOS 7上にオールインワン構成でセットアップする手順を示します。
 
-<img src="./images/hatohol1.png" alt="Hatoholダッシュボード" title="Hatoholダッシュボード" width="600px">
+<img src="./images/hato-dash.png" alt="Hatoholダッシュボード" title="Hatoholダッシュボード" width="600px">
 
 ### 13-1 インストール
 
@@ -3609,7 +3610,7 @@ http://10.0.0.10/hatohol/
 
 Hatoholは監視サーバーから取得したログ、イベント、性能情報を表示するだけでなく、それらの情報を統計してグラフとして出力することができる機能が備わっています。CPUのシステム時間、ユーザー時間をグラフとして出力すると次のようになります。
 
-![Hatoholのグラフ機能](./images/hatohol3.png)
+![Hatoholのグラフ機能](./images/hato-graph.png)
 
 <!-- BREAK -->
 
@@ -3661,7 +3662,7 @@ ZabbixとHatoholの連携ができたので、あとは対象のサーバーにZ
 ZabbixでOpenStackの各ノードを監視するためにZabbix Agentをインストールします。Ubuntuには標準でZabbix Agentパッケージが用意されているので、apt-getコマンドなどを使ってインストールします。
 
 ```
-# apt-get update && apt-get install -y zabbix-agent
+zabbix# apt-get update && apt-get install -y zabbix-agent
 ```
 
 <!-- BREAK -->
@@ -3673,7 +3674,7 @@ Zabbix Agentをインストールしたら次にどのZabbixサーバーと通�
 (controllerノードの設定記述例)
 
 ```
-# vi /etc/zabbix/zabbix_agentd.conf
+zabbix# vi /etc/zabbix/zabbix_agentd.conf
 ...
 Server          10.0.0.10     ← ZabbixサーバーのIPアドレスに書き換え
 ServerActive    10.0.0.10     ← ZabbixサーバーのIPアドレスに書き換え
@@ -3686,7 +3687,7 @@ ListenIPに指定するのはZabbixサーバーと通信できるNICに設定し
 変更したZabbix Agentの設定を反映させるため、Zabbix Agentサービスを再起動します。
 
 ```
-# service zabbix-agent restart
+zabbix# service zabbix-agent restart
 ```
 
 <!-- BREAK -->
@@ -3729,7 +3730,7 @@ Zabbix Agentのセットアップが終わったら、次にZabbix Agentをセ�
 
 登録したサーバーの情報がHatoholで閲覧できるか確認してみましょう。Zabbixサーバー以外のログなど表示できるようになれば正常に閲覧できています。
 
-![OpenStackノードの監視](./images/hatohol-view.png)
+![OpenStackノードの監視](./images/hato-evnt.png)
 
 
 #### 13-8-5 参考情報
