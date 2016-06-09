@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:1.0.0-b<br>
+Version:1.0.0-b3<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0-b2 (2016/06/09作成) <br>
+バージョン：1.0.0-b3 (2016/06/09作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -22,6 +22,7 @@ Version:1.0.0-b<br>
 |0.9.9-4|2016/06/03| 誤記およびLiberty版Glanceで起きていた問題に対する対応で不要な記述の削除|
 |1.0.0-b|2016/06/08| Part.2 監視環境 構築編(ベータ版)を公開|
 |1.0.0-b2|2016/06/09| 誤記の修正|
+|1.0.0-b3|2016/06/09| ZabbixのUIを日本語化できなかった場合のTipsを追加|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -3280,6 +3281,7 @@ mysql> describe acknowledges;
 <!-- BREAK -->
 
 ### 12-3 Zabbixサーバーの設定および起動
+
 /etc/zabbix/zabbix_server.confを編集し、次の行を追加します。なお、MySQLユーザzabbixのパスワードを別の文字列に変更した場合は、該当文字列を指定する必要があります。
 
 ```
@@ -3301,7 +3303,7 @@ zabbix# service zabbix-server restart
 PHPの設定をZabbixが動作するように修正するため、 /etc/apache2/conf-enabled/zabbix.conf を編集します。
  
 ```
- zabbix# vi  /etc/apache2/conf-enabled/zabbix.conf
+ zabbix# vi /etc/apache2/conf-enabled/zabbix.conf
  
 php_value max_execution_time 300
 php_value memory_limit 128M
@@ -3356,6 +3358,14 @@ Password      | zabbix
 <img src="./images/Language.png" alt="言語設定の変更" title="言語設定の変更" width="600px">
 
 Zabbix frontendへログインし、言語設定を日本語にします。画面右上のユーザーアイコンを選択し、「User」→「Language」→「Japanese(Ja_JP)」を選択し、Updateボタンを押します。
+
+言語として「Japanese(ja_JP)」が選択できない場合は、次のように実行してから再度上記の操作を実行してください。
+
+```
+zabbix# localedef -f UTF-8 -i ja_JP ja_JP
+zabbix# service zabbix-server restart
+zabbix# service apache2 restart
+```
 
 <!-- BREAK -->
 
