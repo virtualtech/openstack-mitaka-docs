@@ -3358,7 +3358,7 @@ Password      | zabbix
 
 <img src="./images/Language.png" alt="言語設定の変更" title="言語設定の変更" width="600px">
 
-Zabbix frontendへログインし、言語設定を日本語にします。画面右上のユーザーアイコンを選択し、「User」→「Language」→「Japanese(Ja_JP)」を選択し、Updateボタンを押します。
+Zabbix frontendへログインし、言語設定を日本語にします。画面右上のユーザーアイコンを選択し、「User」→「Language」→「Japanese(ja_JP)」を選択し、Updateボタンを押します。
 
 言語として「Japanese(ja_JP)」が選択できない場合は、次のように実行してから再度上記の操作を実行してください。
 
