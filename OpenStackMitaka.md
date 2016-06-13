@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:1.0.0-b7<br>
+Version:1.0.0-b8<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0-b7 (2016/06/13作成) <br>
+バージョン：1.0.0-b8 (2016/06/13作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -27,7 +27,7 @@ Version:1.0.0-b7<br>
 |1.0.0-b5|2016/06/13|aptコマンドで-yをつけないように変更。及びHatoholのインストール手順の見直し(Thanks fuguman,Mnakagawa)|
 |1.0.0-b6|2016/06/13|l2populationの説明を修正|
 |1.0.0-b7|2016/06/13|Zabbix Agentのインストールが未修正だったので修正。EPEL-erlangリポ部分の削除。監視編部分に書式崩れがあったので修正|
-
+|1.0.0-b8|2016/06/13|軽微な修正|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -3188,7 +3188,7 @@ client$ ssh -i mykey.pem cloud-user@instance-floating-ip
 
 Ubuntu ServerベースでOpenStack環境を構築した場合、OpenStack DashboardはUbuntuのテーマが設定されています。このテーマはOpenStack標準テーマと比べてフォントが大きく見やすくて良いのですが、一部のボタンなどでボタンラベルが表示されない問題が発生することがあります。
 
-![MacDown logo](./images/ubuntu-theme.png)
+![Ubuntuテーマの削除](./images/ubuntu-theme.png)
 
 次のように実行するとUbuntuのカスタムテーマを削除できます。必要に応じて対応してください。
 
@@ -3554,8 +3554,8 @@ SELinuxポリシールールの適用を無効化するには、/etc/selinux/con
 ```
 hatohol# firewall-cmd --zone=public --add-port=80/tcp --permanent
 hatohol# firewall-cmd --zone=public --add-port=80/tcp
-hatohol# firewall-cmd --add-port=5672/tcp --zone=public --permanent
-hatohol# firewall-cmd --add-port=5672/tcp --zone=public
+hatohol# firewall-cmd --zone=public --add-port=5672/tcp --permanent
+hatohol# firewall-cmd --zone=public --add-port=5672/tcp
 ```
 
 以上の設定が終わりましたら、一旦Hatoholを実行するサーバーを再起動します。
