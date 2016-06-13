@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:1.0.0-b4<br>
+Version:1.0.0-b5<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0-b4 (2016/06/09作成) <br>
+バージョン：1.0.0-b5 (2016/06/13作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -17,13 +17,14 @@ Version:1.0.0-b4<br>
 |:---|:---|:---|
 |0.9.0|2016/05/13|Mitaka版執筆開始|
 |0.9.9-1|2016/05/30|ベータ版を公開|
-|0.9.9-2|2016/05/30| 「1-5-2 プロキシーの設定」を修正、改行を調整|
-|0.9.9-3|2016/05/31| 改行を調整|
-|0.9.9-4|2016/06/03| 誤記およびLiberty版Glanceで起きていた問題に対する対応で不要な記述の削除|
-|1.0.0-b|2016/06/08| Part.2 監視環境 構築編(ベータ版)を公開|
-|1.0.0-b2|2016/06/09| 誤記の修正|
-|1.0.0-b3|2016/06/09| ZabbixのUIを日本語化できなかった場合のTipsを追加|
-|1.0.0-b4|2016/06/09| Hatoholの画像差し替え|
+|0.9.9-2|2016/05/30|「1-5-2 プロキシーの設定」を修正、改行を調整|
+|0.9.9-3|2016/05/31|改行を調整|
+|0.9.9-4|2016/06/03|誤記およびLiberty版Glanceで起きていた問題に対する対応で不要な記述の削除|
+|1.0.0-b|2016/06/08|Part.2 監視環境 構築編(ベータ版)を公開|
+|1.0.0-b2|2016/06/09|誤記の修正|
+|1.0.0-b3|2016/06/09|ZabbixのUIを日本語化できなかった場合のTipsを追加|
+|1.0.0-b4|2016/06/09|Hatoholの画像差し替え|
+|1.0.0-b5|2016/06/13|aptコマンドで-yをつけないように変更。及びHatoholのインストール手順の見直し(Thanks fuguman,Mnakagawa)|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -65,6 +66,12 @@ Ubuntu Serverでは新しいハードウェアのサポートを積極的に行�
 本書は3.13.0-86以降のバージョンのカーネルで動作するUbuntu 14.04.4を想定しています。
 
 - <http://old-releases.ubuntu.com/releases/14.04.1/ubuntu-14.04.1-server-amd64.iso>
+
+````
+筆者注:もしここで想定するUbuntuやカーネルバージョン以外で何らかの事象が発生した場合も、以下までご報告ください。動作可否情報をGithubで共有できればと思います。
+https://github.com/virtualtech/openstack-mitaka-docs/issues
+````
+
 
 <!-- BREAK -->
 
@@ -384,7 +391,7 @@ controller# apt-get install python-openstackclient python-pymysql
 各ノードで時刻を正確にするために時刻同期サーバーのChronyをインストールします。
 
 ```
-# apt-get install -y chrony
+# apt-get install chrony
 ```
 
 #### 2-5-2 コントローラーノードの時刻同期サーバーの設定
@@ -460,7 +467,7 @@ MS Name/IP address         Stratum Poll Reach LastRx Last sample
 apt-getコマンドでmariadb-serverパッケージをインストールします。
 
 ```
-controller# apt-get install -y mariadb-server
+controller# apt-get install mariadb-server
 ```
 
 インストール中にパスワードの入力を要求されますので、MariaDBのrootユーザーに対するパスワードを設定します。
@@ -506,7 +513,7 @@ controller# service mysql restart
 コンピュートノードにMariaDBクライアントをインストールします。コントローラーノードでインストール済みのMariaDBと同様のバージョンを指定します。
 
 ````
-compute# apt-get install -y mariadb-client-5.5 mariadb-client-core-5.5
+compute# apt-get install mariadb-client-5.5 mariadb-client-core-5.5
 ````
 
 ### 2-7 RabbitMQのインストール
@@ -1587,7 +1594,7 @@ controller# nova image-list
 ### 6-1 パッケージのインストール
 
 ```
-compute# apt-get install -y nova-compute
+compute# apt-get install nova-compute
 ```
 
 ### 6-2 Novaの設定を変更
@@ -2815,7 +2822,7 @@ controller# openstack endpoint create --region RegionOne \
 本書ではBlock StorageコントローラーとBlock Storageボリュームコンポーネントを一台のマシンで構築するため、両方の役割をインストールします。
 
 ```
-controller# apt-get install -y lvm2 cinder-api cinder-scheduler cinder-volume python-mysqldb python-cinderclient 
+controller# apt-get install lvm2 cinder-api cinder-scheduler cinder-volume python-mysqldb python-cinderclient 
 ```
 
 <!-- BREAK -->
@@ -3373,8 +3380,16 @@ zabbix# service apache2 restart
 
 ## 13. Hatoholのインストール
 
-HatoholはCentOS6.5以降、Ubuntu Server 14.04、16.04などで動作します。
+Hatohol 16.04はCentOS7以降、Ubuntu Server 14.04などで動作します。
+CentOS 7向けには公式のRPMパッケージが公開されており、yumコマンドを使ってインストール可能です。
 本例ではHatoholをCentOS 7上にオールインワン構成でセットアップする手順を示します。
+
+インストールには次のリポジトリーへのアクセスができる必要があります。
+
+* [Hatohol](http://project-hatohol.github.io/repo/)
+* [EPEL](http://dl.fedoraproject.org/pub/epel/7/x86_64/)
+* [EPEL-erlang](http://repos.fedorapeople.org/repos/peter/erlang/)
+* [rabbitmq.com/releases](https://www.rabbitmq.com/releases/rabbitmq-server/)
 
 <img src="./images/hato-dash.png" alt="Hatoholダッシュボード" title="Hatoholダッシュボード" width="600px">
 
@@ -3499,7 +3514,7 @@ hatohol# systemctl start httpd
 
 ### 13-3 セキュリティ設定の変更
 
-CentOSインストール後の初期状態では、SElinux, Firewalld, iptablesといったセキュリティ機構により他のコンピュータからのアクセスに制限が加えられます。Hatoholは現時点でSELinuxによる強制アクセス制御機能が有効化されていると動作しないため、これを解除する必要があります。
+CentOSインストール後の初期状態では、SELinux, Firewalld, iptablesといったセキュリティ機構により他のコンピュータからのアクセスに制限が加えられます。Hatoholは現時点でSELinuxによる強制アクセス制御機能が有効化されていると動作しないため、これを解除する必要があります。
 
 　1. SELinuxの設定  
 
@@ -3575,11 +3590,13 @@ hatohol# rabbitmqctl add_user hatohol hatohol
 hatohol# rabbitmqctl set_permissions -p hatohol hatohol ".*" ".*" ".*"
 ```
 
-### 13-4-2 HAPI2のPythonモジュールプラグインのインストール
+### 13-4-2 Zabbixプラグインのインストール
+
+以下のコマンドを実行して、HatoholにHAP2のZabbixプラグインをインストールします。
 
 ```
-hatohol# yum install python-pip python-pika
-hatohol# pip install python-mk-livestatus
+hatohol# yum --enablerepo=hatohol install hatohol-hap2-zabbix
+hatohol# systemctl restart hatohol
 ```
 
 ### 13-4-3 HAPI2の追加
@@ -3587,18 +3604,10 @@ hatohol# pip install python-mk-livestatus
 以下のコマンドを実行して、HatoholにHAP2を追加します。
 
 ```
-hatohol# hatohol-db-initiator --db-user root --db-password password
+hatohol# hatohol-db-initiator --db_user root --db_password <MariaDBのrootパスワード>
 hatohol# systemctl restart hatohol
 ```
 
-### 13-4-4 Zabbixプラグインのインストール
-
-以下のコマンドを実行して、HatoholにHAP2のZabbixプラグインを追加します。
-
-```
-hatohol# yum --enablerepo=hatohol install hatohol-hap2-zabbix
-hatohol# systemctl restart hatohol
-```
 
 ### 13-5 Hatoholによる監視情報の閲覧
 
@@ -3662,7 +3671,7 @@ ZabbixとHatoholの連携ができたので、あとは対象のサーバーにZ
 ZabbixでOpenStackの各ノードを監視するためにZabbix Agentをインストールします。Ubuntuには標準でZabbix Agentパッケージが用意されているので、apt-getコマンドなどを使ってインストールします。
 
 ```
-zabbix# apt-get update && apt-get install -y zabbix-agent
+zabbix# apt-get update && apt-get install zabbix-agent
 ```
 
 <!-- BREAK -->
