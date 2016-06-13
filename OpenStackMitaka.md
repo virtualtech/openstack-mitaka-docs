@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:1.0.0-b6<br>
+Version:1.0.0-b7<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0-b6 (2016/06/13作成) <br>
+バージョン：1.0.0-b7 (2016/06/13作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -26,6 +26,8 @@ Version:1.0.0-b6<br>
 |1.0.0-b4|2016/06/09|Hatoholの画像差し替え|
 |1.0.0-b5|2016/06/13|aptコマンドで-yをつけないように変更。及びHatoholのインストール手順の見直し(Thanks fuguman,Mnakagawa)|
 |1.0.0-b6|2016/06/13|l2populationの説明を修正|
+|1.0.0-b7|2016/06/13|Zabbix Agentのインストールが未修正だったので修正。EPEL-erlangリポ部分の削除。監視編部分に書式崩れがあったので修正|
+
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -3393,14 +3395,15 @@ CentOS 7向けには公式のRPMパッケージが公開されており、yumコ
 
 * [Hatohol](http://project-hatohol.github.io/repo/)
 * [EPEL](http://dl.fedoraproject.org/pub/epel/7/x86_64/)
-* [EPEL-erlang](http://repos.fedorapeople.org/repos/peter/erlang/)
 * [rabbitmq.com/releases](https://www.rabbitmq.com/releases/rabbitmq-server/)
 
 <img src="./images/hato-dash.png" alt="Hatoholダッシュボード" title="Hatoholダッシュボード" width="600px">
 
 ### 13-1 インストール
 
-　1. Hatoholをインストールのためまずはwgetをインストールし、Project Hatohol公式のyumリポジトリーを登録します。
+　1. Hatoholをインストールするため、まずはwgetをインストールしProject Hatohol公式のyumリポジトリーを登録します。
+
+現時点のHatoholはバージョンのアップグレードに対応していません。そこでyum updateコマンドで想定しないHatoholのアップグレードが行われないようにするために、リポジトリーをenabled=0に設定します。
 
 ```
 hatohol# yum install wget
@@ -3521,9 +3524,9 @@ hatohol# systemctl start httpd
 
 CentOSインストール後の初期状態では、SELinux, Firewalld, iptablesといったセキュリティ機構により他のコンピュータからのアクセスに制限が加えられます。Hatoholは現時点でSELinuxによる強制アクセス制御機能が有効化されていると動作しないため、これを解除する必要があります。
 
-　1. SELinuxの設定  
+#### 13-3-1 SELinuxの設定  
 
-　現在のSELinuxの実行モードを確認するにはgetenforceモードを実行します。
+現在のSELinuxの実行モードを確認するにはgetenforceモードを実行します。
 
 ```
 hatohol# getenforce
@@ -3543,9 +3546,9 @@ SELinuxポリシールールの適用を無効化するには、/etc/selinux/con
  ```
  SELINUX=disabled
  ```
-  
 
-　2. パケットフィルタリングの設定
+#### 13-3-2 パケットフィルタリングの設定
+
 フィルタリングの設定変更は、次のコマンドで恒久的に変更可能です。5672番ポートについては後述のRabbitMQサービスで使用します。
 
 ```
@@ -3565,18 +3568,19 @@ hatohol# shutdown -r now
 
 ### 13-4 Hatohol Arm Plugin Interface 2 (HAPI2)の設定
 
-　1. RabbitMQのインストール
+#### 13-4-1 RabbitMQのインストール
 　
-　EPELリポジトリーより、RabbitMQとErlangをインストールします。RabbitMQは本書の執筆時点(2016年6月現在)で最新のバージョン3.6.2をインストールします。
-　
+EPELリポジトリーより、RabbitMQとErlangをインストールします。RabbitMQは本書の執筆時点(2016年6月現在)で最新のバージョン3.6.2をインストールします。
+
  - <https://www.rabbitmq.com/install-rpm.html>
 
 ```
-hatohol# wget -O /etc/yum.repos.d/epel-erlang.repo http://repos.fedorapeople.org/repos/peter/erlang/epel-erlang.repo
 hatohol# yum install erlang
 hatohol# rpm --import https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
 hatohol# yum install https://www.rabbitmq.com/releases/rabbitmq-server/v3.6.2/rabbitmq-server-3.6.2-1.noarch.rpm
 ```
+
+#### 13-4-2 RabbitMQサービスの起動 
 
 RabbitMQを有効化します。
 
@@ -3585,7 +3589,7 @@ hatohol# systemctl enable rabbitmq-server
 hatohol# systemctl start rabbitmq-server
 ```
 
-### 13-4-1 RabbitMQの各種設定
+#### 13-4-3 RabbitMQの各種設定
 
 RabbitMQにアクセスするためのユーザーとしてhatoholユーザーを作成し、必要なパーミッションを設定します。以下はRabbitMQのパスワードをhatoholにする例です。
 
@@ -3595,7 +3599,7 @@ hatohol# rabbitmqctl add_user hatohol hatohol
 hatohol# rabbitmqctl set_permissions -p hatohol hatohol ".*" ".*" ".*"
 ```
 
-### 13-4-2 Zabbixプラグインのインストール
+#### 13-4-4 Zabbixプラグインのインストール
 
 以下のコマンドを実行して、HatoholにHAP2のZabbixプラグインをインストールします。
 
@@ -3604,7 +3608,7 @@ hatohol# yum --enablerepo=hatohol install hatohol-hap2-zabbix
 hatohol# systemctl restart hatohol
 ```
 
-### 13-4-3 HAPI2の追加
+#### 13-4-5 HAPI2の追加
 
 以下のコマンドを実行して、HatoholにHAP2を追加します。
 
@@ -3673,10 +3677,12 @@ ZabbixとHatoholの連携ができたので、あとは対象のサーバーにZ
 
 #### 13-8-1 Zabbix Agentのインストール
 
-ZabbixでOpenStackの各ノードを監視するためにZabbix Agentをインストールします。Ubuntuには標準でZabbix Agentパッケージが用意されているので、apt-getコマンドなどを使ってインストールします。
+ZabbixでOpenStackの各ノードを監視するためにZabbix Agentをインストールします。Zabbix 3.0.xを今回インストールしたので、Zabbix Agent 3.0.xパッケージをインストールします。
 
 ```
-zabbix# apt-get update && apt-get install zabbix-agent
+agent# wget http://repo.zabbix.com/zabbix/3.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.0-1+trusty_all.deb
+agent# dpkg -i zabbix-release_3.0-1+trusty_all.deb
+agent# apt-get update && apt-get install zabbix-agent
 ```
 
 <!-- BREAK -->
@@ -3688,7 +3694,7 @@ Zabbix Agentをインストールしたら次にどのZabbixサーバーと通�
 (controllerノードの設定記述例)
 
 ```
-zabbix# vi /etc/zabbix/zabbix_agentd.conf
+agent# vi /etc/zabbix/zabbix_agentd.conf
 ...
 Server          10.0.0.10     ← ZabbixサーバーのIPアドレスに書き換え
 ServerActive    10.0.0.10     ← ZabbixサーバーのIPアドレスに書き換え
@@ -3701,7 +3707,7 @@ ListenIPに指定するのはZabbixサーバーと通信できるNICに設定し
 変更したZabbix Agentの設定を反映させるため、Zabbix Agentサービスを再起動します。
 
 ```
-zabbix# service zabbix-agent restart
+agent# service zabbix-agent restart
 ```
 
 <!-- BREAK -->
