@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:1.0.0-b5<br>
+Version:1.0.0-b6<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0-b5 (2016/06/13作成) <br>
+バージョン：1.0.0-b6 (2016/06/13作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -24,7 +24,9 @@ Version:1.0.0-b5<br>
 |1.0.0-b2|2016/06/09|誤記の修正|
 |1.0.0-b3|2016/06/09|ZabbixのUIを日本語化できなかった場合のTipsを追加|
 |1.0.0-b4|2016/06/09|Hatoholの画像差し替え|
-|1.0.0-b5|2016/06/13|aptコマンドで-yをつけないように変更。及びHatoholのインストール手順の見直し(Thanks fuguman,Mnakagawa)|
+|1.0.0-b5|2016/06/13|aptコマンドで-yをつけないように変更。及びHatoholのインストール手順の見直し
+(Thanks fuguman,Mnakagawa)|
+|1.0.0-b6|2016/06/13|l2populationの説明を修正|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -1994,7 +1996,8 @@ controller# less /etc/neutron/plugins/ml2/linuxbridge_agent.ini | grep -v "^\s*$
 #### ※ ML2プラグインのl2populationについて
 OpenStack Mitakaの公式手順書では、ML2プラグインのmechanism_driversとしてlinuxbridgeとl2populationが指定されています。l2populationが有効だとこれまでの動きと異なり、インスタンスが起動してもネットワークが有効化されるまで通信ができません。つまりNeutronネットワークを構築してルーターのパブリック側のIPアドレス宛にPingコマンドを実行して確認できても疎通ができません。このネットワーク有効化の有無についてメッセージキューサービスが監視して制御しています。 <br />
 従ってOpenStack Mitakaでは、これまでのバージョン以上にメッセージキューサービス（本例や公式手順ではしばしばRabbitMQが使用されます）が確実に動作している必要があります。このような仕組みが導入されたのは、不要なパケットがネットワーク内に流れ続けないようにするためです。<br />
-ただし、弊社で構築した環境においては起動時間が経過するとArpリクエストを返さなくなり、結果Neutronネットワーク内と外との接続に支障が出ることが判明したため、公式のインストールガイドではl2populationを利用していますがこれをオフにして対処しています。
+<br />
+ただし、弊社でESXi仮想マシン環境に構築したOpenStack環境においてl2populationが有効化されていると想定通り動かないという事象が発生することを確認してます。その他のハイパーバイザーでは確認していませんが、ネットワーク通信に支障が起きる場合はl2populationをオフに設定すると改善される場合があります。修正数ｒ箇所は次の通りです。
 
 + controllerの/etc/neutron/plugins/ml2/ml2_conf.iniの設定変更
 
@@ -2015,6 +2018,9 @@ l2_population = true
 ↓
 l2_population = false
 ```
+
+設定変更後はl2populationの設定変更を反映させるため、controllerとcomputeノードのNeutron関連サービスを再起動するか、システムを再起動してください。
+
 <!-- BREAK -->
 
 + Layer-3エージェントの設定
