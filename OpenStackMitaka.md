@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:1.0.0-b8<br>
+Version:1.0.0-b9<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0-b8 (2016/06/13作成) <br>
+バージョン：1.0.0-b9 (2016/06/13作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -28,6 +28,7 @@ Version:1.0.0-b8<br>
 |1.0.0-b6|2016/06/13|l2populationの説明を修正|
 |1.0.0-b7|2016/06/13|Zabbix Agentのインストールが未修正だったので修正。EPEL-erlangリポ部分の削除。監視編部分に書式崩れがあったので修正|
 |1.0.0-b8|2016/06/13|軽微な修正|
+|1.0.0-b9|2016/06/13|軽微な修正-2|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -1806,7 +1807,6 @@ Repeat User Password: password
 | id        | 3ff553c90945412fbbdc5cc43110b308 |
 | name      | neutron                          |
 +-----------+----------------------------------+
-
 ```
 
 + neutronユーザーをadminロールに追加
@@ -1830,7 +1830,6 @@ controller# openstack service create --name neutron --description "OpenStack Net
 | name        | neutron                          |
 | type        | network                          |
 +-------------+----------------------------------+
-
 ```
 
 + neutronサービスのAPIエンドポイントを作成
@@ -2337,7 +2336,6 @@ controller# neutron agent-list -c host -c alive -c binary
 | controller | :-)   | neutron-l3-agent          |
 | compute    | :-)   | neutron-linuxbridge-agent |
 +------------+-------+---------------------------+
-
 ```
 
  ※コントローラーとコンピュートで追加され、neutron-linuxbridge-agentが正常に稼働していることが確認できれば問題ありません。念のためログも確認してください。
@@ -2395,7 +2393,6 @@ Created a new network:
 | tenant_id                 | 360855029dbe44649a5dc862c5a3caf1     |
 | updated_at                | 2016-05-18T06:41:05                  |
 +---------------------------+--------------------------------------+
-
 ```
 
 <!-- BREAK -->
@@ -2431,7 +2428,6 @@ Created a new subnet:
 | tenant_id         | 360855029dbe44649a5dc862c5a3caf1             |
 | updated_at        | 2016-05-18T06:51:01                          |
 +-------------------+----------------------------------------------+
-
 ```
 
 ### 9-2 インスタンス用ネットワークの設定
@@ -2473,7 +2469,6 @@ Created a new network:
 | tenant_id               | 4e00692779864ed185356843ebeb0e2f     |
 | updated_at              | 2016-05-18T06:52:08                  |
 +-------------------------+--------------------------------------+
-
 ```
 <!-- BREAK -->
 
@@ -2510,7 +2505,6 @@ Created a new subnet:
 | tenant_id         | 4e00692779864ed185356843ebeb0e2f                 |
 | updated_at        | 2016-05-18T06:52:57                              |
 +-------------------+--------------------------------------------------+
-
 ```
 
 <!-- BREAK -->
@@ -2538,7 +2532,6 @@ Created a new router:
 | status                  | ACTIVE                               |
 | tenant_id               | 4e00692779864ed185356843ebeb0e2f     |
 +-------------------------+--------------------------------------+
-
 ```
 
 #### 9-3-2 demo-routerにサブネットを追加
@@ -2670,7 +2663,6 @@ controller(demo)# openstack flavor list -c Name -c Disk
 | m1.large  |   80 |
 | m1.xlarge |  160 |
 +-----------+------+
-
 ```
 
 nova bootコマンドを使って、インスタンスを起動します。正常に起動したらnova deleteコマンドでインスタンスを削除してください。
@@ -2996,7 +2988,6 @@ controller# cinder service-list
 | cinder-scheduler |   controller   | nova | enabled |   up  | 2016-05-19T02:39 |
 |  cinder-volume   | controller@lvm | nova | enabled |   up  | 2016-05-19T02:39 |
 +------------------+----------------+------+---------+-------+------------------+
-
 ```
 <!-- BREAK -->
 
