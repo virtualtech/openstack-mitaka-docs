@@ -2618,7 +2618,6 @@ controller# ip -f inet addr
 ...
 controller# ping 8.8.8.8 -I qg-c39b9d87-8e
 (Public側から外にアクセスできることを確認)
- 
 ```
 <!-- BREAK -->
 
