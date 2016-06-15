@@ -3222,6 +3222,10 @@ zabbix# apt-get install php5-mysql zabbix-agent zabbix-server-mysql \
  zabbix-java-gateway zabbix-frontend-php
 ```
 
+インストール中、MySQLのrootユーザパスワードの設定を求められるので、パスワードを設定します。
+
+<!-- BREAK -->
+
 ### 12-2 Zabbix用データベースの作成
 
 #### 12-2-1 データベースの作成
@@ -3243,6 +3247,8 @@ Enter password: ← MySQLのrootパスワードを入力(12-1で設定したも�
 # zcat /usr/share/doc/zabbix-server-mysql/create.sql.gz | mysql -uroot zabbix -p
 Enter password:← パスワードzabbixを入力
 ```
+
+<!-- BREAK -->
 
 #### 12-2-2 データベースの確認
 
@@ -3390,6 +3396,8 @@ CentOS 7向けには公式のRPMパッケージが公開されており、yumコ
 
 <img src="./images/hato-dash.png" alt="Hatoholダッシュボード" title="Hatoholダッシュボード" width="600px">
 
+<!-- BREAK -->
+
 ### 13-1 インストール
 
 　1. Hatoholをインストールするため、まずはwgetをインストールしProject Hatohol公式のyumリポジトリーを登録します。
@@ -3427,6 +3435,7 @@ hatohol# yum --enablerepo=hatohol install hatohol-web
 hatohol# yum install mariadb-server
 ```
 
+<!-- BREAK -->
 
 ### 13-2 MariaDBサーバーの設定
 
@@ -3511,6 +3520,8 @@ hatohol# systemctl start httpd
 # systemctl status hatohol | egrep "Active|Main PID"
 ```
 
+<!-- BREAK -->
+
 ### 13-3 セキュリティ設定の変更
 
 CentOSインストール後の初期状態では、SELinux, Firewalld, iptablesといったセキュリティ機構により他のコンピュータからのアクセスに制限が加えられます。Hatoholは現時点でSELinuxによる強制アクセス制御機能が有効化されていると動作しないため、これを解除する必要があります。
@@ -3537,6 +3548,8 @@ SELinuxポリシールールの適用を無効化するには、/etc/selinux/con
  ```
  SELINUX=disabled
  ```
+
+<!-- BREAK -->
 
 #### 13-3-2 パケットフィルタリングの設定
 
@@ -3608,6 +3621,7 @@ hatohol# hatohol-db-initiator --db_user root --db_password <MariaDBのrootパス
 hatohol# systemctl restart hatohol
 ```
 
+<!-- BREAK -->
 
 ### 13-5 Hatoholによる監視情報の閲覧
 
@@ -3660,6 +3674,8 @@ Zabbixサーバーのモニタリング設定を変更するには、次の手�
 + 更新ボタンをクリックして設定変更を適用します。
 
 以上の手順で、Zabbixサーバーを監視対象として設定できます。
+
+<!-- BREAK -->
 
 ### 13-8 Hatoholでその他のホストの監視
 
