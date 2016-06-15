@@ -3243,6 +3243,7 @@ Enter password: ← MySQLのrootパスワードを入力(12-1で設定したも�
 # zcat /usr/share/doc/zabbix-server-mysql/create.sql.gz | mysql -uroot zabbix -p
 Enter password:← パスワードzabbixを入力
 ```
+<!-- BREAK -->
 
 #### 12-2-2 データベースの確認
 
@@ -3302,8 +3303,6 @@ DBPassword=zabbix
 zabbix# service zabbix-server restart
 ```
 
-<!-- BREAK -->
-
 ### 12-4 Zabbix frontendの設定および起動
 
 PHPの設定をZabbixが動作するように修正するため、 /etc/apache2/conf-enabled/zabbix.conf を編集します。
@@ -3335,7 +3334,7 @@ http://<Zabbix frontendのIPアドレス>/zabbix/
 
 <!-- BREAK -->
 
-次のような画面が表示されます。「Next step」ボタンをクリックして次に進みます。
+Zabbixの初期設定では次のような画面が表示されます。「Next step」ボタンをクリックして次に進みます。
 
 <img src="./images/zabbix-setup.png" alt="Zabbix初期セットアップ" title="Zabbix初期セットアップ" width="600px">
 
@@ -3375,7 +3374,6 @@ zabbix# service apache2 restart
 
 <!-- BREAK -->
 
-
 ## 13. Hatoholのインストール
 
 Hatohol 16.04はCentOS7以降、Ubuntu Server 14.04などで動作します。
@@ -3389,6 +3387,8 @@ CentOS 7向けには公式のRPMパッケージが公開されており、yumコ
 * [rabbitmq.com/releases](https://www.rabbitmq.com/releases/rabbitmq-server/)
 
 <img src="./images/hato-dash.png" alt="Hatoholダッシュボード" title="Hatoholダッシュボード" width="600px">
+
+<!-- BREAK -->
 
 ### 13-1 インストール
 
@@ -3427,6 +3427,7 @@ hatohol# yum --enablerepo=hatohol install hatohol-web
 hatohol# yum install mariadb-server
 ```
 
+<!-- BREAK -->
 
 ### 13-2 MariaDBサーバーの設定
 
@@ -3465,6 +3466,8 @@ Remove test database and access to it? [Y/n] y
 Reload privilege tables now? [Y/n] y
 ```
 
+<!-- BREAK -->
+
 　3. Hatohol DBの初期化
 
 ```
@@ -3472,8 +3475,6 @@ hatohol# hatohol-db-initiator --db_user root --db_password <MariaDBのrootパス
 ```
 
 そのまま上記コマンドを実行した場合、MySQLユーザhatohol、データベースhatoholが作成されます。これらを変更する場合、事前に/etc/hatohol/hatohol.confを編集してください。
-
-<!-- BREAK -->
 
 　4. Hatohol Web用DBの作成
 
@@ -3510,6 +3511,8 @@ hatohol# systemctl start httpd
 ```
 # systemctl status hatohol | egrep "Active|Main PID"
 ```
+
+<!-- BREAK -->
 
 ### 13-3 セキュリティ設定の変更
 
@@ -3549,7 +3552,7 @@ hatohol# firewall-cmd --zone=public --add-port=5672/tcp --permanent
 hatohol# firewall-cmd --zone=public --add-port=5672/tcp
 ```
 
-以上の設定が終わりましたら、一旦Hatoholを実行するサーバーを再起動します。
+設定を反映させるため、Hatoholサーバーの再起動をします。
 
 ```
 hatohol# shutdown -r now
@@ -3599,6 +3602,8 @@ hatohol# yum --enablerepo=hatohol install hatohol-hap2-zabbix
 hatohol# systemctl restart hatohol
 ```
 
+<!-- BREAK -->
+
 #### 13-4-5 HAPI2の追加
 
 以下のコマンドを実行して、HatoholにHAP2を追加します。
@@ -3611,7 +3616,7 @@ hatohol# systemctl restart hatohol
 
 ### 13-5 Hatoholによる監視情報の閲覧
 
-Hatohol Webが動作しているホストのトップディレクトリーをWebブラウザで表示してください。10.0.0.10で動作している場合は、次のURLとなります。admin/hatohol（初期パスワード）でログインできます。
+Hatohol Webが動作しているホストのトップディレクトリーをWebブラウザで表示します。10.0.0.10で動作している場合は、次のURLとなります。admin/hatohol（初期パスワード）でログインできます。
 
 ```
 http://10.0.0.10/hatohol/
@@ -3726,9 +3731,6 @@ Zabbix Agentのセットアップが終わったら、次にZabbix Agentをセ�
 - 「テンプレートとのリンク」の検索ボックスに「Template OS Linux」と入力し、選択肢が出てきたらクリックします。そのほかのテンプレートを割り当てるにはテンプレートを検索し、該当のものを選択します。
 - 「テンプレートとのリンク」にテンプレートを追加したら、その項目の「追加」リンクをクリックします。「テンプレートとのリンク」に追加されます。
 - 更新ボタンをクリックします。
-
-<!-- BREAK -->
-
 - ホスト登録画面にサーバーが追加されます。ページの再読み込みを実行して、Zabbixエージェントが有効になっていることを確認してください。Zabbbixエージェントの設定が有効になっている場合は「ZBX」アイコンが緑色に変化します。
 
 ![Zabbixエージェントステータスを確認](./images/zabbix-agent.png)
