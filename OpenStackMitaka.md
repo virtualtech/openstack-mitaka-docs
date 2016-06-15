@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:1.0.0-b10<br>
+Version:1.0.0-b12<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0-b10 (2016/06/15作成) <br>
+バージョン：1.0.0-b12 (2016/06/15作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -29,7 +29,8 @@ Version:1.0.0-b10<br>
 |1.0.0-b7|2016/06/13|Zabbix Agentのインストールが未修正だったので修正。EPEL-erlangリポ部分の削除。監視編部分に書式崩れがあったので修正|
 |1.0.0-b8|2016/06/13|軽微な修正|
 |1.0.0-b9|2016/06/13|軽微な修正-2|
-|1.0.0-b10|2016/06/15|改ページの調整|
+|1.0.0-b11|2016/06/15|メッセージキューサービスの対応について修正。他、軽微な修正|
+|1.0.0-b12|2016/06/15|13-8-5 参考情報の修正、12-1 MySQL rootパスワード設定手順の追記|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -323,7 +324,7 @@ iface eth0 inet static
 
 ```
 controller# hostnamectl set-hostname controller
-# cat /etc/hostname
+controller# cat /etc/hostname
 controller
 ```
 
@@ -523,7 +524,7 @@ compute# apt-get install mariadb-client-5.5 mariadb-client-core-5.5
 
 ### 2-7 RabbitMQのインストール
 
-OpenStackは、オペレーションやステータス情報を各サービス間で連携するためにメッセージブローカーを使用しています。OpenStackではRabbitMQ、Qpid、ZeroMQなど複数のメッセージブローカーサービスに対応しています。
+OpenStackは、オペレーションやステータス情報を各サービス間で連携するためにメッセージブローカーを使用しています。OpenStackではRabbitMQ、ZeroMQなど複数のメッセージブローカーサービスに対応しています。
 本書ではRabbitMQをインストールする例を説明します。
 
 #### 2-7-1 パッケージのインストール
@@ -3215,13 +3216,16 @@ zabbix# wget http://repo.zabbix.com/zabbix/3.0/ubuntu/pool/main/z/zabbix-release
 zabbix# dpkg -i zabbix-release_3.0-1+trusty_all.deb
 ```
 
-次に、Zabbixの稼働に必要となるパッケージ群をインストールします。
+次に、Zabbixの動作に必要となるパッケージ群をインストールします。<br>
+MySQLインストール中にパスワードの入力を要求されますので、MySQLのrootユーザーに対するパスワードを設定します。本書ではパスワードとして「password」を設定します。
 
 ```
 zabbix# apt-get update
 zabbix# apt-get install php5-mysql zabbix-agent zabbix-server-mysql \
  zabbix-java-gateway zabbix-frontend-php
 ```
+
+<!-- BREAK -->
 
 ### 12-2 Zabbix用データベースの作成
 
@@ -3248,7 +3252,7 @@ Enter password:← パスワードzabbixを入力
 
 #### 12-2-2 データベースの確認
 
-作成したデータベーステーブルにアクセスしてみましょう。zabbixデータベースに様々なテーブルがあり、参照できれば問題ありません。
+作成したデータベーステーブルにアクセスしてみましょう。zabbixデータベースの各テーブルが全て参照可能であれば問題ありません。
 
 ```
 zabbix# mysql -u root -p
@@ -3298,7 +3302,7 @@ zabbix# vi /etc/zabbix/zabbix_server.conf
 DBPassword=zabbix
 ```
 
-以上の操作を行ったのち、サービスzabbix-serverを起動します。
+これまでの設定変更を反映させるため、サービスzabbix-serverを起動します。
 
 ```
 zabbix# service zabbix-server restart
@@ -3377,7 +3381,7 @@ zabbix# service apache2 restart
 
 ## 13. Hatoholのインストール
 
-Hatohol 16.04はCentOS7以降、Ubuntu Server 14.04などで動作します。
+Hatohol 16.04はCentOS 7以降、Ubuntu Server 14.04などで動作します。
 CentOS 7向けには公式のRPMパッケージが公開されており、yumコマンドを使ってインストール可能です。
 本例ではHatoholをCentOS 7上にオールインワン構成でセットアップする手順を示します。
 
@@ -3432,7 +3436,7 @@ hatohol# yum install mariadb-server
 
 ### 13-2 MariaDBサーバーの設定
 
-まず、ローカルのMariaDB関連の設定を行います。
+まずローカルのMariaDB関連の設定を行います。
 
 　1. MariaDBの起動
 
@@ -3607,7 +3611,7 @@ hatohol# systemctl restart hatohol
 
 #### 13-4-5 HAPI2の追加
 
-以下のコマンドを実行して、HatoholにHAP2を追加します。
+以下のコマンドを実行して、HatoholにHAPI2を追加します。
 
 ```
 hatohol# hatohol-db-initiator --db_user root --db_password <MariaDBのrootパスワード>
@@ -3732,7 +3736,7 @@ Zabbix Agentのセットアップが終わったら、次にZabbix Agentをセ�
 - 「テンプレートとのリンク」の検索ボックスに「Template OS Linux」と入力し、選択肢が出てきたらクリックします。そのほかのテンプレートを割り当てるにはテンプレートを検索し、該当のものを選択します。
 - 「テンプレートとのリンク」にテンプレートを追加したら、その項目の「追加」リンクをクリックします。「テンプレートとのリンク」に追加されます。
 - 更新ボタンをクリックします。
-- ホスト登録画面にサーバーが追加されます。ページの再読み込みを実行して、Zabbixエージェントが有効になっていることを確認してください。Zabbbixエージェントの設定が有効になっている場合は「ZBX」アイコンが緑色に変化します。
+- ホスト登録画面にサーバーが追加されます。ページの再読み込みを実行して、Zabbixエージェントが有効になっていることを確認します。Zabbbixエージェントの設定が有効になっている場合は「ZBX」アイコンが緑色に変化します。
 
 ![Zabbixエージェントステータスを確認](./images/zabbix-agent.png)
 
@@ -3746,14 +3750,13 @@ Zabbix Agentのセットアップが終わったら、次にZabbix Agentをセ�
 
 ![OpenStackノードの監視](./images/hato-evnt.png)
 
-
 #### 13-8-5 参考情報
 
 ホストの追加やディスカバリ自動登録については次のドキュメントをご覧ください。
 
 - <http://www.zabbix.com/jp/auto_discovery.php>
-- <https://www.zabbix.com/documentation/2.2/jp/manual/quickstart/host>
-- <https://www.zabbix.com/documentation/2.2/jp/manual/discovery/auto_registration>
-- <https://www.zabbix.com/documentation/2.2/jp/manual/discovery/network_discovery/rule>
+- <https://www.zabbix.com/documentation/3.0/manual/quickstart/host>
+- <https://www.zabbix.com/documentation/3.0/manual/discovery/auto_registration>
+- <https://www.zabbix.com/documentation/3.0/manual/discovery/network_discovery/rule>
 
 <!-- BREAK -->
