@@ -1391,7 +1391,6 @@ MariaDB [(none)]> show databases;
 | nova_api           |
 +--------------------+
 3 rows in set (0.00 sec)
-
 ```
 
 <!-- BREAK -->
@@ -2618,7 +2617,6 @@ controller# ip -f inet addr
 ...
 controller# ping 8.8.8.8 -I qg-c39b9d87-8e
 (Public側から外にアクセスできることを確認)
- 
 ```
 <!-- BREAK -->
 
