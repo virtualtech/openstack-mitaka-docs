@@ -1391,7 +1391,6 @@ MariaDB [(none)]> show databases;
 | nova_api           |
 +--------------------+
 3 rows in set (0.00 sec)
-
 ```
 
 <!-- BREAK -->
