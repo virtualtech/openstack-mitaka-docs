@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:1.0.0-b12<br>
+Version:1.0.0<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0-b12 (2016/06/15作成) <br>
+バージョン：1.0.0 (2016/06/15作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -31,6 +31,7 @@ Version:1.0.0-b12<br>
 |1.0.0-b9|2016/06/13|軽微な修正-2|
 |1.0.0-b11|2016/06/15|メッセージキューサービスの対応について修正。他、軽微な修正|
 |1.0.0-b12|2016/06/15|13-8-5 参考情報の修正、12-1 MySQL rootパスワード設定手順の追記|
+|1.0.0|2016/06/15|正式版として公開|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -190,6 +191,8 @@ Ubuntuインストール時に選択した言語がインストール後も使�
 Ubuntu Serverで日本語の言語を設定した場合、標準出力や標準エラー出力が文字化けするなど様々な問題が起きますので、言語は英語を設定されることを推奨します。
 ```
 
+<!-- BREAK -->
+
 #### 1-5-2 プロキシーの設定
 
 外部ネットワークとの接続にプロキシーの設定が必要な場合は、aptコマンドを使ってパッケージの照会やダウンロードを行うために次のような設定をする必要があります。
@@ -274,6 +277,8 @@ OpenStackパッケージのインストール前に各々のノードで以下�
 + 環境変数設定ファイルの作成（コントローラーノードのみ）
 + memcachedのインストールと設定（コントローラーノードのみ）
 
+<!-- BREAK -->
+
 ### 2-1 ネットワークデバイスの設定
 
 各ノードの/etc/network/interfacesを編集し、IPアドレスの設定を行います。
@@ -328,6 +333,8 @@ controller# cat /etc/hostname
 controller
 ```
 
+<!-- BREAK -->
+
 #### 2-2-2 各ノードの/etc/hostsの設定
 
 すべてのノードで127.0.1.1の行をコメントアウトします。
@@ -373,6 +380,8 @@ OK
 ```
 
 各ノードのシステムをアップデートします。Ubuntuではパッケージのインストールやアップデートの際にまず`apt-get update`を実行してリポジトリーの情報の更新が必要です。そのあと`apt-get -y dist-upgrade`でアップグレードを行います。カーネルの更新があった場合は再起動してください。
+
+<!-- BREAK -->
 
 なお、`apt-get update`は頻繁に実行する必要はありません。日をまたいで作業する際や、コマンドを実行しない場合にパッケージ更新やパッケージのインストールでエラーが出る場合は実行してください。以降の手順では`apt-get update`を省略します。
 
@@ -434,6 +443,8 @@ server controller iburst
 compute# service chrony restart
 ```
 
+<!-- BREAK -->
+
 #### 2-5-4 NTPサーバーの動作確認
 
 構築した環境でコマンドを実行して、各NTPサーバーが同期していることを確認します。
@@ -478,6 +489,8 @@ controller# apt-get install mariadb-server
 
 インストール中にパスワードの入力を要求されますので、MariaDBのrootユーザーに対するパスワードを設定します。
 本書ではパスワードとして「password」を設定します。
+
+<!-- BREAK -->
 
 #### 2-6-2 MariaDBの設定を変更
 
@@ -534,6 +547,8 @@ OpenStackは、オペレーションやステータス情報を各サービス�
 ```
 controller# apt-get install rabbitmq-server
 ```
+
+<!-- BREAK -->
 
 #### 2-7-2 openstackユーザーの作成とパーミッションの設定
 
@@ -642,6 +657,7 @@ memcachedサービスを再起動します。
 ```
 controller# service memcached restart
 ```
+
 <!-- BREAK -->
 
 ## 3. Keystoneのインストールと設定（コントローラーノード）
@@ -662,6 +678,8 @@ IDENTIFIED BY 'password';
 EOF
 Enter password: ← MariaDBのrootパスワードpasswordを入力
 ```
+
+<!-- BREAK -->
 
 ### 3-2 データベースの確認
 
@@ -744,6 +762,8 @@ controller# less /etc/keystone/keystone.conf | grep -v "^\s*$" | grep -v "^\s*#"
 controller# su -s /bin/sh -c "keystone-manage db_sync" keystone
 ```
 
+<!-- BREAK -->
+
 ### 3-7  Fernet キーの初期化
 
 keystone-manage コマンドで Fernet キーを初期化します。
@@ -764,6 +784,7 @@ controller# keystone-manage fernet_setup --keystone-user keystone --keystone-gro
 ServerName controller
 ...
 ```
+
 + コントローラーノードで/etc/apache2/sites-available/wsgi-keystone.confを作成し、次の内容を記述します。
 
 ```
@@ -901,6 +922,8 @@ Repeat User Password: password
 +-----------+----------------------------------+
 ```
 
+<!-- BREAK -->
+
 + admin ロールの作成
 
 ```
@@ -957,6 +980,8 @@ controller# openstack project create --domain default \
 +-------------+----------------------------------+
 ```
 
+<!-- BREAK -->
+
 + demo ユーザーの作成
 
 ```
@@ -993,6 +1018,8 @@ controller# openstack role create user
 ```
 controller# openstack role add --project demo --user demo user
 ```
+
+<!-- BREAK -->
 
 ### 3-12 Keystoneの動作確認
 
@@ -1179,6 +1206,8 @@ apt-getコマンドでglance パッケージをインストールします。
 controller# apt-get install glance
 ```
 
+<!-- BREAK -->
+
 ### 4-5 Glanceの設定変更
 
 Glanceの設定を行います。glance-api.conf、glance-registry.confともに、[keystone_authtoken]に追記した設定以外のパラメーターはコメントアウトします。
@@ -1253,6 +1282,8 @@ flavor = keystone                ← 追記
 ```
 controller# less /etc/glance/glance-registry.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
+
+<!-- BREAK -->
 
 ### 4-6 データベースに展開
 
@@ -1335,6 +1366,8 @@ controller# glance image-create --name "cirros-0.3.4-x86_64" \
 +------------------+--------------------------------------+
 ```
 
+<!-- BREAK -->
+
 #### 4-9-3 イメージの登録を確認
 
 仮想マシンイメージが正しく登録されたか確認します。
@@ -1371,6 +1404,8 @@ IDENTIFIED BY 'password';
 EOF
 Enter password:           ← MariaDBのrootパスワードpasswordを入力
 ```
+
+<!-- BREAK -->
 
 ### 5-2 データベースの確認
 
@@ -1426,6 +1461,8 @@ Repeat User Password: password
 ```
 controller# openstack role add --project service --user nova admin
 ```
+
+<!-- BREAK -->
 
 + novaサービスの作成
 
@@ -1541,6 +1578,8 @@ api_servers = http://controller:9292
 lock_path = /var/lib/nova/tmp
 ```
 
+<!-- BREAK -->
+
 次のコマンドで正しく設定を行ったか確認します。
 
 ```
@@ -1575,6 +1614,8 @@ service nova-conductor restart && service nova-novncproxy restart
 controller# rm /var/lib/nova/nova.sqlite
 ```
 
+<!-- BREAK -->
+
 ### 5-9 Glanceとの通信確認
 
 NovaのコマンドラインインターフェースでGlanceと通信してGlanceと相互に通信できているかを確認します。
@@ -1601,6 +1642,8 @@ controller# nova image-list
 ```
 compute# apt-get install nova-compute
 ```
+
+<!-- BREAK -->
 
 ### 6-2 Novaの設定を変更
 
@@ -1725,6 +1768,7 @@ controller# openstack compute service list -c Binary -c Host -c State
 ```
 ※一覧にcomputeが表示されていれば問題ありません。Stateがupでないサービスがある場合は-cオプションを外して確認します。
 
+<!-- BREAK -->
 
 #### 6-4-2 ハイパーバイザの確認
 
@@ -1759,6 +1803,8 @@ GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' \
 EOF
 Enter password: ←MariaDBのrootパスワードpasswordを入力
 ```
+
+<!-- BREAK -->
 
 ### 7-2 データベースの確認
 
@@ -1924,6 +1970,8 @@ rabbit_password = password
 controller# less /etc/neutron/neutron.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
+<!-- BREAK -->
+
 + ML2プラグインの設定
 
 ```
@@ -2049,6 +2097,8 @@ dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
 enable_isolated_metadata = True
 ```
 
+<!-- BREAK -->
+
 + dnsmasqの設定
 
 一般的にデフォルトのイーサネットのMTUは1500に設定されています。通常のEthernet フレームにVXLANヘッダが加算されるため、VXLANを使う場合は少なくとも50バイト多い、1550バイト以上のMTUが設定されていないと通信が不安定になったり、通信が不可能になる場合があります。<br />
@@ -2129,6 +2179,8 @@ METADATA_SECRETはMetadataエージェントで指定した値に置き換えま
 controller# less /etc/nova/nova.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
+<!-- BREAK -->
+
 ### 7-7 データベースに展開
 
 コマンドを実行して、エラーが発生せずに完了することを確認します。
@@ -2196,6 +2248,8 @@ controller# rm /var/lib/neutron/neutron.sqlite
 ```
 compute# apt-get install neutron-linuxbridge-agent
 ```
+
+<!-- BREAK -->
 
 ### 8-2 設定の変更
 
@@ -2430,6 +2484,8 @@ Created a new subnet:
 | updated_at        | 2016-05-18T06:51:01                          |
 +-------------------+----------------------------------------------+
 ```
+
+<!-- BREAK -->
 
 ### 9-2 インスタンス用ネットワークの設定
 
@@ -3038,6 +3094,8 @@ controller# openstack volume create --size 1 volume
 controller# apt-get install openstack-dashboard
 ```
 
+<!-- BREAK -->
+
 ### 11-2 Dashboardの設定を変更
 
 インストールしたDashboardの設定を変更します。
@@ -3095,6 +3153,8 @@ controller# vi /var/www/html/index.html
 controller# service apache2 restart
 ```
 
+<!-- BREAK -->
+
 ### 11-3 Dashboardにアクセス
 
 コントローラーノードとネットワーク的に接続されているマシンからブラウザで以下URLに接続してOpenStackのログイン画面が表示されるか確認します。
@@ -3123,6 +3183,8 @@ OpenStackの上で動かすインスタンスのファイアウォール設定�
 
 セキュリティーグループは複数作成できます。作成したセキュリティーグループをインスタンスを起動する際に選択することで、セキュリティグループで定義したポートを解放したり、拒否したり、接続できるクライアントを制限することができます。
 
+<!-- BREAK -->
+
 ### 11-5 キーペアの作成
 
 OpenStackではインスタンスへのアクセスはデフォルトで公開鍵認証方式で行います。次の手順でキーペアを作成できます。
@@ -3150,6 +3212,8 @@ OpenStackではインスタンスへのアクセスはデフォルトで公開�
 7.作成後タブで必要に応じてユーザーデータの入力（オプション）<br>
 8.高度な設定タブでパーティションなどの構成を設定（オプション）<br>
 9.右下の「起動」ボタンをクリック<br>
+
+<!-- BREAK -->
 
 ### 11-7 Floating IPの設定
 
@@ -3668,6 +3732,8 @@ Zabbixサーバーのモニタリング設定を変更するには、次の手�
 + 更新ボタンをクリックして設定変更を適用します。
 
 以上の手順で、Zabbixサーバーを監視対象として設定できます。
+
+<!-- BREAK -->
 
 ### 13-8 Hatoholでその他のホストの監視
 
