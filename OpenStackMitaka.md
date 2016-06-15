@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:1.0.0-b10<br>
+Version:1.0.0-b11<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0-b10 (2016/06/15作成) <br>
+バージョン：1.0.0-b11 (2016/06/15作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -30,6 +30,7 @@ Version:1.0.0-b10<br>
 |1.0.0-b8|2016/06/13|軽微な修正|
 |1.0.0-b9|2016/06/13|軽微な修正-2|
 |1.0.0-b10|2016/06/15|改ページの調整|
+|1.0.0-b11|2016/06/15|メッセージキューサービスの対応について修正。他、軽微な修正|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -323,7 +324,7 @@ iface eth0 inet static
 
 ```
 controller# hostnamectl set-hostname controller
-# cat /etc/hostname
+controller# cat /etc/hostname
 controller
 ```
 
@@ -523,7 +524,7 @@ compute# apt-get install mariadb-client-5.5 mariadb-client-core-5.5
 
 ### 2-7 RabbitMQのインストール
 
-OpenStackは、オペレーションやステータス情報を各サービス間で連携するためにメッセージブローカーを使用しています。OpenStackではRabbitMQ、Qpid、ZeroMQなど複数のメッセージブローカーサービスに対応しています。
+OpenStackは、オペレーションやステータス情報を各サービス間で連携するためにメッセージブローカーを使用しています。OpenStackではRabbitMQ、ZeroMQなど複数のメッセージブローカーサービスに対応しています。
 本書ではRabbitMQをインストールする例を説明します。
 
 #### 2-7-1 パッケージのインストール
