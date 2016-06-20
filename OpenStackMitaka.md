@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Mitaka版
 Company: 日本仮想化技術<br>
-Version:1.0.0<br>
+Version:1.0.1<br>
 
 # OpenStack構築手順書 Mitaka版
 
 <div class="title">
-バージョン：1.0.0 (2016/06/15作成) <br>
+バージョン：1.0.1 (2016/06/20作成) <br>
 日本仮想化技術株式会社
 </div>
 
@@ -32,6 +32,7 @@ Version:1.0.0<br>
 |1.0.0-b11|2016/06/15|メッセージキューサービスの対応について修正。他、軽微な修正|
 |1.0.0-b12|2016/06/15|13-8-5 参考情報の修正、12-1 MySQL rootパスワード設定手順の追記|
 |1.0.0|2016/06/15|正式版として公開|
+|1.0.1|2016/06/20|誤記の修正|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
@@ -2288,7 +2289,7 @@ rabbit_password = password         ←追記
 
 <!-- BREAK -->
 
-本書の構成では、コンピュートノードのNeutron.confにはデータベースの指定は不要です。
+本書の構成では、コンピュートノードのneutron.confにはデータベースの指定は不要です。
 次のコマンドで正しく設定を行ったか確認します。
 
 ```
@@ -3147,7 +3148,7 @@ controller# vi /var/www/html/index.html
     <meta http-equiv="refresh" content="3; url=/horizon" />    ← 追記
 ```
 
-変更した変更を反映させるため、Apacheとセッションストレージサービスを再起動します。
+設定変更を反映させるため、Apache Webサーバーを再起動します。
 
 ```
 controller# service apache2 restart
@@ -3157,7 +3158,7 @@ controller# service apache2 restart
 
 ### 11-3 Dashboardにアクセス
 
-コントローラーノードとネットワーク的に接続されているマシンからブラウザで以下URLに接続してOpenStackのログイン画面が表示されるか確認します。
+コントローラーノードとネットワークに接続されているマシンからブラウザで以下URLに接続してOpenStackのログイン画面が表示されるか確認します。
 
 ※ブラウザで接続するマシンは予めDNSもしくは/etc/hostsにコントローラーノードのIPを記述しておく等コンピュートノードの名前解決を行っておく必要があります。
 
@@ -3171,7 +3172,7 @@ http://controller/horizon/
 
 ### 11-4 セキュリティグループの設定
 
-OpenStackの上で動かすインスタンスのファイアウォール設定は、セキュリティグループで行います。ログイン後、次の手順でセキュリティグループを設定できます。
+OpenStackで動作するインスタンスのファイアウォール設定は、セキュリティグループで行います。ログイン後、次の手順でセキュリティグループを設定できます。
 
 1.demoユーザーでログイン<br>
 2.「プロジェクト→コンピュート→アクセスとセキュリティ」を選択<br>
@@ -3181,7 +3182,7 @@ OpenStackの上で動かすインスタンスのファイアウォール設定�
 
 インスタンスに対してPingを実行したい場合はルールとしてすべてのICMPを、インスタンスにSSH接続したい場合はSSHをルールとしてセキュリティグループに追加してください。
 
-セキュリティーグループは複数作成できます。作成したセキュリティーグループをインスタンスを起動する際に選択することで、セキュリティグループで定義したポートを解放したり、拒否したり、接続できるクライアントを制限することができます。
+セキュリティーグループは複数作成できます。作成したセキュリティーグループをインスタンス起動時に選択することで、セキュリティグループで定義したポートを解放したり、拒否したり、接続できるクライアントを制限することができます。
 
 <!-- BREAK -->
 
@@ -3364,7 +3365,7 @@ zabbix# vi /etc/zabbix/zabbix_server.conf
 DBPassword=zabbix
 ```
 
-これまでの設定変更を反映させるため、サービスzabbix-serverを起動します。
+これまでの設定変更を反映させるため、サービスzabbix-serverを再起動します。
 
 ```
 zabbix# service zabbix-server restart
@@ -3372,7 +3373,7 @@ zabbix# service zabbix-server restart
 
 ### 12-4 Zabbix frontendの設定および起動
 
-PHPの設定をZabbixが動作するように修正するため、 /etc/apache2/conf-enabled/zabbix.conf を編集します。
+Zabbixの動作要件を満たすため、/etc/apache2/conf-enabled/zabbix.conf を編集しPHPの設定を変更します。
  
 ```
  zabbix# vi /etc/apache2/conf-enabled/zabbix.conf
@@ -3662,7 +3663,7 @@ hatohol# rabbitmqctl set_permissions -p hatohol hatohol ".*" ".*" ".*"
 
 #### 13-4-4 Zabbixプラグインのインストール
 
-以下のコマンドを実行して、HatoholにHAP2のZabbixプラグインをインストールします。
+以下のコマンドを実行して、HatoholにHAPI2のZabbixプラグインをインストールします。
 
 ```
 hatohol# yum --enablerepo=hatohol install hatohol-hap2-zabbix
@@ -3742,7 +3743,7 @@ ZabbixとHatoholの連携ができたので、あとは対象のサーバーにZ
 
 #### 13-8-1 Zabbix Agentのインストール
 
-ZabbixでOpenStackの各ノードを監視するためにZabbix Agentをインストールします。Zabbix 3.0.xを今回インストールしたので、Zabbix Agent 3.0.xパッケージをインストールします。
+ZabbixでOpenStackの各ノードを監視するためにZabbix Agentをインストールします。今回はZabbix 3.0.xをインストールしたので、Zabbix Agent 3.0.xパッケージをインストールします。
 
 ```
 agent# wget http://repo.zabbix.com/zabbix/3.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.0-1+trusty_all.deb
@@ -3767,7 +3768,7 @@ Hostname  controller      ← Zabbixサーバーに登録する際のホスト�
 ListenIP  10.0.0.101      ← Zabbixエージェントが待ち受ける側のIPアドレス
 ```
 
-ListenIPに指定するのはZabbixサーバーと通信できるNICに設定したIPアドレスを設定します。
+ListenIPにはZabbixサーバーと通信可能なNICのIPアドレスを指定します。
 
 変更したZabbix Agentの設定を反映させるため、Zabbix Agentサービスを再起動します。
 
